@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertTripSchema, insertItineraryItemSchema } from "@shared/schema";
+import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -161,6 +161,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting itinerary item:", error);
       res.status(500).json({ message: "Failed to delete itinerary item" });
+    }
+  });
+
+  // Expense routes (protected)
+  app.get("/api/trips/:tripId/expenses", async (req, res) => {
+    try {
+      const expenses = await storage.getExpensesByTripId(req.params.tripId);
+      res.json(expenses);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+      res.status(500).json({ message: "Failed to fetch expenses" });
+    }
+  });
+
+  app.post("/api/expenses", isAuthenticated, async (req, res) => {
+    try {
+      const validation = insertExpenseSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({
+          message: fromZodError(validation.error).toString(),
+        });
+      }
+
+      const expense = await storage.createExpense(validation.data);
+      res.status(201).json(expense);
+    } catch (error) {
+      console.error("Error creating expense:", error);
+      res.status(500).json({ message: "Failed to create expense" });
+    }
+  });
+
+  app.patch("/api/expenses/:id", isAuthenticated, async (req, res) => {
+    try {
+      const expense = await storage.updateExpense(req.params.id, req.body);
+      if (!expense) {
+        return res.status(404).json({ message: "Expense not found" });
+      }
+      res.json(expense);
+    } catch (error) {
+      console.error("Error updating expense:", error);
+      res.status(500).json({ message: "Failed to update expense" });
+    }
+  });
+
+  app.delete("/api/expenses/:id", isAuthenticated, async (req, res) => {
+    try {
+      await storage.deleteExpense(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      res.status(500).json({ message: "Failed to delete expense" });
     }
   });
 

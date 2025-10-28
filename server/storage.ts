@@ -4,6 +4,7 @@ import {
   destinations,
   trips,
   itineraryItems,
+  expenses,
   type User,
   type UpsertUser,
   type Destination,
@@ -12,6 +13,8 @@ import {
   type InsertTrip,
   type ItineraryItem,
   type InsertItineraryItem,
+  type Expense,
+  type InsertExpense,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -30,7 +33,7 @@ export interface IStorage {
   
   // Trip operations
   getUserTrips(userId: string): Promise<(Trip & { destination: Destination | null })[]>;
-  getTrip(id: string): Promise<(Trip & { destination: Destination | null; itineraryItems: ItineraryItem[] }) | undefined>;
+  getTrip(id: string): Promise<(Trip & { destination: Destination | null; itineraryItems: ItineraryItem[]; expenses: Expense[] }) | undefined>;
   createTrip(trip: InsertTrip): Promise<Trip>;
   updateTrip(id: string, trip: Partial<InsertTrip>): Promise<Trip | undefined>;
   deleteTrip(id: string): Promise<void>;
@@ -39,6 +42,12 @@ export interface IStorage {
   getTripItineraryItems(tripId: string): Promise<ItineraryItem[]>;
   createItineraryItem(item: InsertItineraryItem): Promise<ItineraryItem>;
   deleteItineraryItem(id: string): Promise<void>;
+  
+  // Expense operations
+  getExpensesByTripId(tripId: string): Promise<Expense[]>;
+  createExpense(expense: InsertExpense): Promise<Expense>;
+  updateExpense(id: string, expense: Partial<InsertExpense>): Promise<Expense | undefined>;
+  deleteExpense(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -97,7 +106,7 @@ export class DatabaseStorage implements IStorage {
     return results;
   }
 
-  async getTrip(id: string): Promise<(Trip & { destination: Destination | null; itineraryItems: ItineraryItem[] }) | undefined> {
+  async getTrip(id: string): Promise<(Trip & { destination: Destination | null; itineraryItems: ItineraryItem[]; expenses: Expense[] }) | undefined> {
     const result = await db.query.trips.findFirst({
       where: eq(trips.id, id),
       with: {
@@ -105,9 +114,12 @@ export class DatabaseStorage implements IStorage {
         itineraryItems: {
           orderBy: (items, { asc }) => [asc(items.day), asc(items.time)],
         },
+        expenses: {
+          orderBy: (expenses, { desc }) => [desc(expenses.date)],
+        },
       },
     });
-    return result;
+    return result as any;
   }
 
   async createTrip(tripData: InsertTrip): Promise<Trip> {
@@ -146,6 +158,32 @@ export class DatabaseStorage implements IStorage {
 
   async deleteItineraryItem(id: string): Promise<void> {
     await db.delete(itineraryItems).where(eq(itineraryItems.id, id));
+  }
+
+  // Expense operations
+  async getExpensesByTripId(tripId: string): Promise<Expense[]> {
+    return await db.select().from(expenses).where(eq(expenses.tripId, tripId)).orderBy(desc(expenses.date));
+  }
+
+  async createExpense(expenseData: InsertExpense): Promise<Expense> {
+    const [expense] = await db
+      .insert(expenses)
+      .values(expenseData)
+      .returning();
+    return expense;
+  }
+
+  async updateExpense(id: string, expenseData: Partial<InsertExpense>): Promise<Expense | undefined> {
+    const [expense] = await db
+      .update(expenses)
+      .set(expenseData)
+      .where(eq(expenses.id, id))
+      .returning();
+    return expense;
+  }
+
+  async deleteExpense(id: string): Promise<void> {
+    await db.delete(expenses).where(eq(expenses.id, id));
   }
 }
 

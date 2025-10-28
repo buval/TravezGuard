@@ -72,6 +72,7 @@ export const trips = pgTable("trips", {
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   notes: text("notes"),
+  budget: integer("budget"), // Total budget for the trip in USD
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -106,6 +107,25 @@ export const insertItineraryItemSchema = createInsertSchema(itineraryItems).omit
 export type InsertItineraryItem = z.infer<typeof insertItineraryItemSchema>;
 export type ItineraryItem = typeof itineraryItems.$inferSelect;
 
+// Expenses table - Track trip expenses
+export const expenses = pgTable("expenses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tripId: varchar("trip_id").notNull().references(() => trips.id, { onDelete: 'cascade' }),
+  category: text("category").notNull(), // e.g., "accommodation", "food", "transport", "activities", "shopping", "other"
+  amount: integer("amount").notNull(), // Amount in USD cents (to avoid floating point issues)
+  date: date("date").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertExpenseSchema = createInsertSchema(expenses).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertExpense = z.infer<typeof insertExpenseSchema>;
+export type Expense = typeof expenses.$inferSelect;
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   trips: many(trips),
@@ -125,11 +145,19 @@ export const tripsRelations = relations(trips, ({ one, many }) => ({
     references: [destinations.id],
   }),
   itineraryItems: many(itineraryItems),
+  expenses: many(expenses),
 }));
 
 export const itineraryItemsRelations = relations(itineraryItems, ({ one }) => ({
   trip: one(trips, {
     fields: [itineraryItems.tripId],
+    references: [trips.id],
+  }),
+}));
+
+export const expensesRelations = relations(expenses, ({ one }) => ({
+  trip: one(trips, {
+    fields: [expenses.tripId],
     references: [trips.id],
   }),
 }));

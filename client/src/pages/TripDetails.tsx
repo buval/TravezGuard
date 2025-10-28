@@ -1,16 +1,82 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Progress } from "@/components/ui/progress";
 import { MobileNav } from "@/components/MobileNav";
-import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck, Sun } from "lucide-react";
-import type { Trip, Destination, ItineraryItem } from "@shared/schema";
+import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck, Sun, DollarSign, Plus, Trash2, Hotel, Utensils, Plane, Ticket, ShoppingBag, MoreHorizontal } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertExpenseSchema } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Trip, Destination, ItineraryItem, Expense } from "@shared/schema";
+
+const EXPENSE_CATEGORIES = [
+  { value: "accommodation", label: "Accommodation", icon: Hotel },
+  { value: "food", label: "Food & Dining", icon: Utensils },
+  { value: "transport", label: "Transportation", icon: Plane },
+  { value: "activities", label: "Activities", icon: Ticket },
+  { value: "shopping", label: "Shopping", icon: ShoppingBag },
+  { value: "other", label: "Other", icon: MoreHorizontal },
+];
 
 export default function TripDetails() {
   const { id } = useParams<{ id: string }>();
+  const { toast } = useToast();
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
 
-  const { data: trip, isLoading } = useQuery<Trip & { destination: Destination; itineraryItems: ItineraryItem[] }>({
+  const { data: trip, isLoading } = useQuery<Trip & { destination: Destination; itineraryItems: ItineraryItem[]; expenses: Expense[] }>({
     queryKey: ["/api/trips", id],
+  });
+
+  const form = useForm({
+    defaultValues: {
+      tripId: id,
+      category: "other",
+      amount: "",
+      date: new Date().toISOString().split("T")[0],
+      description: "",
+    },
+  });
+
+  const createExpenseMutation = useMutation({
+    mutationFn: async (data: { tripId: string; category: string; amount: number; date: string; description: string }) => {
+      const response = await apiRequest("POST", "/api/expenses", data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trips", id] });
+      toast({ title: "Expense added successfully!" });
+      form.reset({
+        tripId: id,
+        category: "other",
+        amount: "",
+        date: new Date().toISOString().split("T")[0],
+        description: "",
+      });
+      setShowExpenseForm(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to add expense", variant: "destructive" });
+    },
+  });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: async (expenseId: string) => {
+      await apiRequest("DELETE", `/api/expenses/${expenseId}`, null);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trips", id] });
+      toast({ title: "Expense deleted" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to delete expense", variant: "destructive" });
+    },
   });
 
   const formatDate = (dateStr: string) => {
@@ -29,6 +95,13 @@ export default function TripDetails() {
     return `${days} ${days === 1 ? "day" : "days"}`;
   };
 
+  const formatCurrency = (cents: number) => {
+    return `$${(cents / 100).toFixed(2)}`;
+  };
+
+  const totalExpenses = trip?.expenses?.reduce((sum, expense) => sum + expense.amount, 0) || 0;
+  const budgetPercentage = trip?.budget ? Math.min((totalExpenses / trip.budget) * 100, 100) : 0;
+
   const groupedItems = trip?.itineraryItems?.reduce((acc, item) => {
     if (!acc[item.day]) {
       acc[item.day] = [];
@@ -36,6 +109,22 @@ export default function TripDetails() {
     acc[item.day].push(item);
     return acc;
   }, {} as Record<number, ItineraryItem[]>) || {};
+
+  const onSubmitExpense = (data: any) => {
+    const amountInCents = Math.round(parseFloat(data.amount) * 100);
+    if (isNaN(amountInCents) || amountInCents <= 0) {
+      toast({ title: "Error", description: "Please enter a valid amount", variant: "destructive" });
+      return;
+    }
+    
+    createExpenseMutation.mutate({
+      tripId: data.tripId,
+      category: data.category,
+      amount: amountInCents,
+      date: data.date,
+      description: data.description || "",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -223,6 +312,198 @@ export default function TripDetails() {
             </p>
           </Card>
         )}
+
+        {/* Budget & Expenses */}
+        <Card className="p-6 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <DollarSign className="w-5 h-5" />
+              Budget & Expenses
+            </h2>
+            <Button
+              size="sm"
+              onClick={() => setShowExpenseForm(!showExpenseForm)}
+              className="rounded-full gap-2"
+              data-testid="button-add-expense"
+            >
+              <Plus className="w-4 h-4" />
+              Add Expense
+            </Button>
+          </div>
+
+          {/* Budget Overview */}
+          {trip.budget && (
+            <div className="mb-6 p-4 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Budget Progress</span>
+                <span className="text-sm text-muted-foreground">
+                  {formatCurrency(totalExpenses)} / {formatCurrency(trip.budget)}
+                </span>
+              </div>
+              <Progress value={budgetPercentage} className="h-2 mb-2" />
+              <div className="text-xs text-muted-foreground">
+                {trip.budget - totalExpenses > 0 ? (
+                  <span className="text-green-600 dark:text-green-400">
+                    {formatCurrency(trip.budget - totalExpenses)} remaining
+                  </span>
+                ) : (
+                  <span className="text-red-600 dark:text-red-400">
+                    {formatCurrency(totalExpenses - trip.budget)} over budget
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Add Expense Form */}
+          {showExpenseForm && (
+            <Card className="p-4 mb-6 bg-muted/30">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmitExpense)} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger data-testid="select-category">
+                                <SelectValue placeholder="Select category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {EXPENSE_CATEGORIES.map((cat) => (
+                                <SelectItem key={cat.value} value={cat.value}>
+                                  {cat.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Amount ($)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              {...field}
+                              data-testid="input-amount"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} data-testid="input-date" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Hotel night 1" {...field} data-testid="input-description" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowExpenseForm(false)}
+                      className="rounded-full"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="rounded-full"
+                      disabled={createExpenseMutation.isPending}
+                      data-testid="button-submit-expense"
+                    >
+                      {createExpenseMutation.isPending ? "Adding..." : "Add Expense"}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </Card>
+          )}
+
+          {/* Expenses List */}
+          {trip.expenses && trip.expenses.length > 0 ? (
+            <div className="space-y-2">
+              {trip.expenses.map((expense) => {
+                const category = EXPENSE_CATEGORIES.find((c) => c.value === expense.category);
+                const CategoryIcon = category?.icon || MoreHorizontal;
+                return (
+                  <div
+                    key={expense.id}
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card hover-elevate"
+                    data-testid={`expense-${expense.id}`}
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="p-2 rounded-lg bg-muted">
+                        <CategoryIcon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{category?.label || expense.category}</p>
+                          <span className="text-xs text-muted-foreground">{formatDate(expense.date)}</span>
+                        </div>
+                        {expense.description && (
+                          <p className="text-sm text-muted-foreground">{expense.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold">{formatCurrency(expense.amount)}</span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => deleteExpenseMutation.mutate(expense.id)}
+                        data-testid={`button-delete-${expense.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <DollarSign className="w-12 h-12 mx-auto mb-2 opacity-50" />
+              <p>No expenses tracked yet</p>
+              <p className="text-sm">Click "Add Expense" to start tracking your trip costs</p>
+            </div>
+          )}
+        </Card>
 
         {/* Itinerary Preview */}
         <Card className="p-6">
