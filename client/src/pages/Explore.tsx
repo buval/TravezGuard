@@ -1,20 +1,64 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { MobileNav } from "@/components/MobileNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { MapPin, Shield } from "lucide-react";
+import { MapPin, Shield, Search, X } from "lucide-react";
 import type { Destination } from "@shared/schema";
+
+const CATEGORIES = [
+  { value: "all", label: "All" },
+  { value: "beach", label: "Beach" },
+  { value: "mountain", label: "Mountain" },
+  { value: "city", label: "City" },
+  { value: "cultural", label: "Cultural" },
+  { value: "adventure", label: "Adventure" },
+];
 
 export default function Explore() {
   const { isAuthenticated } = useAuth();
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   const { data: destinations, isLoading } = useQuery<Destination[]>({
     queryKey: ["/api/destinations"],
   });
+
+  // Filter and search destinations
+  const filteredDestinations = useMemo(() => {
+    if (!destinations) return [];
+
+    let filtered = destinations;
+
+    // Apply category filter
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((dest) => dest.category === selectedCategory);
+    }
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (dest) =>
+          dest.name.toLowerCase().includes(query) ||
+          dest.country.toLowerCase().includes(query) ||
+          dest.description.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [destinations, selectedCategory, searchQuery]);
+
+  const hasActiveFilters = selectedCategory !== "all" || searchQuery.trim() !== "";
+
+  const clearFilters = () => {
+    setSelectedCategory("all");
+    setSearchQuery("");
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -46,15 +90,98 @@ export default function Explore() {
           </p>
         </div>
 
+        {/* Search and Filters */}
+        <div className="mb-6 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search destinations or countries..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10"
+              data-testid="input-search"
+            />
+            {searchQuery && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full"
+                onClick={() => setSearchQuery("")}
+                data-testid="button-clear-search"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+
+          {/* Category Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            {CATEGORIES.map((category) => (
+              <Button
+                key={category.value}
+                size="sm"
+                variant={selectedCategory === category.value ? "default" : "outline"}
+                className="rounded-full"
+                onClick={() => setSelectedCategory(category.value)}
+                data-testid={`filter-${category.value}`}
+              >
+                {category.label}
+              </Button>
+            ))}
+            {hasActiveFilters && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="rounded-full gap-1 text-muted-foreground"
+                onClick={clearFilters}
+                data-testid="button-clear-filters"
+              >
+                <X className="w-3 h-3" />
+                Clear filters
+              </Button>
+            )}
+          </div>
+
+          {/* Results Count */}
+          {!isLoading && (
+            <p className="text-sm text-muted-foreground">
+              {filteredDestinations.length === 0 ? (
+                "No destinations found"
+              ) : (
+                <>
+                  {filteredDestinations.length}{" "}
+                  {filteredDestinations.length === 1 ? "destination" : "destinations"}
+                  {hasActiveFilters && " found"}
+                </>
+              )}
+            </p>
+          )}
+        </div>
+
         {isLoading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <Card key={i} className="h-64 animate-pulse bg-muted" />
             ))}
           </div>
+        ) : filteredDestinations.length === 0 ? (
+          <Card className="p-12 text-center">
+            <p className="text-muted-foreground mb-4">
+              {hasActiveFilters
+                ? "No destinations match your search criteria"
+                : "No destinations available"}
+            </p>
+            {hasActiveFilters && (
+              <Button onClick={clearFilters} variant="outline" className="rounded-full">
+                Clear filters
+              </Button>
+            )}
+          </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {destinations?.map((dest) => (
+            {filteredDestinations.map((dest) => (
               <Card
                 key={dest.id}
                 className="overflow-hidden cursor-pointer hover-elevate active-elevate-2 group"
@@ -97,7 +224,7 @@ export default function Explore() {
           </div>
         )}
 
-        {!isAuthenticated && destinations && destinations.length > 0 && (
+        {!isAuthenticated && filteredDestinations.length > 0 && (
           <div className="mt-12 text-center">
             <Card className="p-8 max-w-2xl mx-auto">
               <h3 className="text-xl font-semibold mb-3">Ready to Plan Your Trip?</h3>
