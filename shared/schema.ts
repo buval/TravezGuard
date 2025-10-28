@@ -50,6 +50,8 @@ export const destinations = pgTable("destinations", {
   featured: boolean("featured").default(false),
   visaRequirements: text("visa_requirements"), // Visa information for travelers
   travelDocuments: text("travel_documents"), // Required documents and entry requirements
+  climate: text("climate"), // Climate type and general weather patterns
+  bestMonths: text("best_months"), // Best months to visit
   createdAt: timestamp("created_at").defaultNow(),
 });
 

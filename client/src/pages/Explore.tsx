@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { MobileNav } from "@/components/MobileNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { MapPin, Shield, Search, X } from "lucide-react";
+import { MapPin, Shield, Search, X, Sun, Calendar } from "lucide-react";
 import type { Destination } from "@shared/schema";
 
 const CATEGORIES = [
@@ -264,9 +264,43 @@ export default function Explore() {
                 </DialogDescription>
               </DialogHeader>
 
+              {/* Weather & Climate Information */}
+              {(selectedDestination.climate || selectedDestination.bestMonths) && (
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900/50">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <Sun className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    Climate & Best Time to Visit
+                  </h3>
+                  
+                  {selectedDestination.climate && (
+                    <div className="mb-4">
+                      <p className="font-medium text-sm mb-2 flex items-center gap-2">
+                        <Sun className="w-4 h-4" />
+                        Climate
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedDestination.climate}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedDestination.bestMonths && (
+                    <div>
+                      <p className="font-medium text-sm mb-2 flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Best Time to Visit
+                      </p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedDestination.bestMonths}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Visa & Travel Requirements */}
               {(selectedDestination.visaRequirements || selectedDestination.travelDocuments) && (
-                <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
                     <Shield className="w-5 h-5 text-primary" />
                     Visa & Travel Requirements

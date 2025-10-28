@@ -3,7 +3,7 @@ import { useParams, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MobileNav } from "@/components/MobileNav";
-import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck } from "lucide-react";
+import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck, Sun } from "lucide-react";
 import type { Trip, Destination, ItineraryItem } from "@shared/schema";
 
 export default function TripDetails() {
@@ -131,6 +131,44 @@ export default function TripDetails() {
             </div>
           )}
         </Card>
+
+        {/* Weather & Climate Information */}
+        {trip.destination && (trip.destination.climate || trip.destination.bestMonths) && (
+          <Card className="mb-6 p-6 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Sun className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              Climate & Best Time to Visit
+            </h2>
+            
+            {trip.destination.climate && (
+              <div className="mb-4">
+                <div className="flex items-start gap-2">
+                  <Sun className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">Climate</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-climate">
+                      {trip.destination.climate}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {trip.destination.bestMonths && (
+              <div>
+                <div className="flex items-start gap-2">
+                  <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">Best Time to Visit</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-best-months">
+                      {trip.destination.bestMonths}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+        )}
 
         {/* Visa & Travel Requirements */}
         {trip.destination && (trip.destination.visaRequirements || trip.destination.travelDocuments) && (

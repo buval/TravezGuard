@@ -12,6 +12,8 @@ const seedDestinations = [
     featured: true,
     visaRequirements: "EU/Schengen visa required for most non-EU nationals. US, UK, Canada, Australia citizens can visit visa-free for up to 90 days within 180 days.",
     travelDocuments: "Valid passport (must be valid for at least 3 months beyond stay). Proof of accommodation and return ticket may be requested at border control.",
+    climate: "Mediterranean climate with hot, dry summers and mild winters. Summer temperatures range from 25-30°C (77-86°F), perfect for beach activities. Winters are mild at 10-15°C (50-59°F) with occasional rain.",
+    bestMonths: "April-May, September-October for pleasant weather and fewer crowds. July-August for beach season (hot and busy).",
   },
   {
     name: "Swiss Alps",
@@ -22,6 +24,8 @@ const seedDestinations = [
     featured: true,
     visaRequirements: "Schengen visa required for most non-EU nationals. US, UK, Canada, Australia, New Zealand citizens can visit visa-free for up to 90 days within 180 days.",
     travelDocuments: "Valid passport (must be valid for at least 3 months beyond departure date). Travel insurance is highly recommended. Proof of sufficient funds may be required.",
+    climate: "Alpine climate with four distinct seasons. Summers (June-August) are warm at 15-25°C (59-77°F), ideal for hiking. Winters (December-March) are cold and snowy at -2 to 7°C (28-45°F), perfect for skiing. Spring and fall are mild but unpredictable.",
+    bestMonths: "June-September for hiking and summer activities. December-March for skiing and winter sports. May and October for quieter visits with mild weather.",
   },
   {
     name: "Tokyo",
@@ -32,6 +36,8 @@ const seedDestinations = [
     featured: true,
     visaRequirements: "Visa-free entry for citizens of 68 countries including US, UK, Canada, Australia for stays up to 90 days. Other nationals require a tourist visa from Japanese embassy/consulate.",
     travelDocuments: "Valid passport for duration of stay. Return or onward ticket. Declaration of health and customs form completed on arrival. Some travelers may need to show proof of sufficient funds.",
+    climate: "Humid subtropical climate with hot, humid summers and mild winters. Summer temperatures reach 25-32°C (77-90°F) with high humidity. Winters are cool at 5-12°C (41-54°F) with occasional snow. Spring and autumn are comfortable.",
+    bestMonths: "March-May for cherry blossoms and pleasant weather. September-November for fall foliage and mild temperatures. Avoid July-August (hot and humid) and rainy season (June-early July).",
   },
   {
     name: "Machu Picchu",
@@ -42,6 +48,8 @@ const seedDestinations = [
     featured: true,
     visaRequirements: "No visa required for US, UK, Canada, Australia, EU citizens for stays up to 90 days (tourist). Citizens of some countries require a consular visa before travel.",
     travelDocuments: "Valid passport (minimum 6 months validity). Machu Picchu entrance tickets must be purchased in advance. Tourist card (Tarjeta Andina de Migración) provided on arrival. Yellow fever vaccination certificate required if arriving from endemic areas.",
+    climate: "Tropical mountain climate with wet and dry seasons. Dry season (May-September) has clear days at 12-20°C (54-68°F) but cold nights. Wet season (November-March) brings afternoon rain and warmer days at 16-22°C (61-72°F). High altitude means cool temperatures year-round.",
+    bestMonths: "April-May, September-October for fewer crowds and good weather. June-August for driest conditions (peak tourist season). Avoid January-February (heavy rain can close Inca Trail).",
   },
   {
     name: "Cappadocia",
@@ -52,6 +60,8 @@ const seedDestinations = [
     featured: true,
     visaRequirements: "E-visa available online for US, UK, Australia, China citizens (valid 180 days, allows 90-day stay). EU citizens can enter visa-free for up to 90 days. Some nationalities require consular visa.",
     travelDocuments: "Valid passport (minimum 6 months validity beyond entry date). E-visa printout if applicable. Proof of accommodation and return ticket may be requested. Travel insurance recommended.",
+    climate: "Continental climate with hot, dry summers and cold, snowy winters. Summers (June-September) reach 25-35°C (77-95°F) with very low humidity. Winters (December-March) are freezing at -10 to 5°C (14-41°F) with frequent snowfall. Spring and autumn are mild.",
+    bestMonths: "April-May, September-October for hot air balloon flights and comfortable temperatures. June-August for warm weather (peak season). December-February for winter wonderland scenery but very cold.",
   },
   {
     name: "Maldives",
@@ -62,6 +72,8 @@ const seedDestinations = [
     featured: true,
     visaRequirements: "Free 30-day tourist visa on arrival for all nationalities. Can be extended up to 90 days. No pre-arranged visa required.",
     travelDocuments: "Valid passport (minimum 6 months validity). Confirmed hotel booking or resort reservation. Return/onward ticket. Sufficient funds for stay (credit card statement or cash). Completed health declaration and immigration arrival card.",
+    climate: "Tropical monsoon climate with year-round warm temperatures at 25-31°C (77-88°F). Dry season (November-April) has calm seas and sunny skies. Wet season (May-October) brings afternoon rain and rougher seas but still warm. High humidity year-round.",
+    bestMonths: "November-April for best weather, calm seas, and diving conditions. December-March is peak season (most expensive). May-October offers lower prices but possible rain and wind.",
   },
   {
     name: "Paris",
@@ -72,6 +84,8 @@ const seedDestinations = [
     featured: false,
     visaRequirements: "Schengen visa required for most non-EU nationals. US, UK, Canada, Australia, Japan citizens can visit visa-free for up to 90 days within 180 days for tourism or business.",
     travelDocuments: "Valid passport (must be valid for at least 3 months beyond departure). Proof of accommodation in France. Travel insurance covering minimum €30,000 medical expenses (recommended). Return ticket and proof of sufficient funds may be required.",
+    climate: "Temperate oceanic climate with mild temperatures year-round. Summers (June-August) are warm at 20-25°C (68-77°F). Winters (December-February) are cool at 3-8°C (37-46°F) with occasional frost. Spring and autumn are pleasant but rainy. Year-round possibility of rain.",
+    bestMonths: "April-June, September-October for pleasant weather and fewer tourists. July-August for warmest temperatures (crowded). Avoid November-March for gray skies and cold, though December has festive markets.",
   },
   {
     name: "Serengeti",
@@ -82,6 +96,8 @@ const seedDestinations = [
     featured: false,
     visaRequirements: "Visa required for most nationalities. Available as e-visa online (recommended, $50 USD) or on arrival ($50-100 USD). US, UK, EU, Canada, Australia citizens eligible for visa on arrival.",
     travelDocuments: "Valid passport (minimum 6 months validity). Yellow fever vaccination certificate (mandatory if arriving from yellow fever endemic country, recommended for all). Proof of accommodation/safari booking and return ticket may be requested.",
+    climate: "Tropical savanna climate with wet and dry seasons. Dry season (June-October) has warm days at 20-27°C (68-81°F) and cool nights. Short rains (November-December) and long rains (March-May) bring afternoon showers. Year-round mild temperatures but variable rainfall.",
+    bestMonths: "June-October for Great Migration river crossings and best game viewing. January-February for calving season in southern Serengeti. Avoid April-May (heavy rains make roads difficult).",
   },
 ];
 
