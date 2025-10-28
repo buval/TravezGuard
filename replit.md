@@ -49,6 +49,7 @@ Preferred communication style: Simple, everyday language.
   - Destinations: `/api/destinations`, `/api/destinations/featured`, `/api/destinations/:id`
   - Trips: `/api/trips`, `/api/trips/:id` (CRUD operations)
   - Itinerary: `/api/itinerary-items` (create/delete)
+  - Expenses: `/api/expenses` (POST), `/api/expenses/:id` (PATCH/DELETE), `/api/trips/:id/expenses` (GET)
 
 **Business Logic Layer**
 - Storage abstraction interface (`IStorage`) defined in `server/storage.ts`
@@ -65,9 +66,10 @@ Preferred communication style: Simple, everyday language.
 **Schema Design**
 - `users` table: Stores user profile data from Replit Auth (email, name, profile image)
 - `sessions` table: Server-side session storage for authentication
-- `destinations` table: Pre-seeded travel destinations with categories and featured flags
-- `trips` table: User-created trips with references to destinations and date ranges
+- `destinations` table: Pre-seeded travel destinations with categories, featured flags, climate data, and best months to visit
+- `trips` table: User-created trips with references to destinations, date ranges, and optional budget field
 - `itineraryItems` table: Day-by-day activities linked to trips
+- `expenses` table: Trip expense tracking with category, amount (stored in cents for precision), date, and description fields
 
 **Database Migrations**
 - Drizzle Kit manages schema migrations
