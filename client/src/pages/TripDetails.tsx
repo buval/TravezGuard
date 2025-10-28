@@ -3,7 +3,7 @@ import { useParams, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MobileNav } from "@/components/MobileNav";
-import { ChevronLeft, Calendar, MapPin, FileText, Edit } from "lucide-react";
+import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck } from "lucide-react";
 import type { Trip, Destination, ItineraryItem } from "@shared/schema";
 
 export default function TripDetails() {
@@ -131,6 +131,50 @@ export default function TripDetails() {
             </div>
           )}
         </Card>
+
+        {/* Visa & Travel Requirements */}
+        {trip.destination && (trip.destination.visaRequirements || trip.destination.travelDocuments) && (
+          <Card className="mb-6 p-6 bg-primary/5 border-primary/20">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Visa & Travel Requirements
+            </h2>
+            
+            {trip.destination.visaRequirements && (
+              <div className="mb-4">
+                <div className="flex items-start gap-2 mb-2">
+                  <FileCheck className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">Visa Requirements</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-visa-requirements">
+                      {trip.destination.visaRequirements}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {trip.destination.travelDocuments && (
+              <div>
+                <div className="flex items-start gap-2">
+                  <FileText className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">Required Documents</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed" data-testid="text-travel-documents">
+                      {trip.destination.travelDocuments}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 p-3 bg-background rounded-lg border border-border">
+              <p className="text-xs text-muted-foreground">
+                <strong>Important:</strong> Visa and entry requirements can change. Always verify current requirements with the embassy or official government sources before your trip.
+              </p>
+            </div>
+          </Card>
+        )}
 
         {/* About Destination */}
         {trip.destination && (

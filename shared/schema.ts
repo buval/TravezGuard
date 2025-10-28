@@ -48,6 +48,8 @@ export const destinations = pgTable("destinations", {
   imageUrl: text("image_url").notNull(),
   category: text("category").notNull(), // e.g., "beach", "mountain", "city", "cultural", "adventure"
   featured: boolean("featured").default(false),
+  visaRequirements: text("visa_requirements"), // Visa information for travelers
+  travelDocuments: text("travel_documents"), // Required documents and entry requirements
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -26,7 +26,8 @@ export default function NewTrip() {
 
   const createTripMutation = useMutation({
     mutationFn: async (data: InsertTrip) => {
-      return await apiRequest("POST", "/api/trips", data);
+      const response = await apiRequest("POST", "/api/trips", data);
+      return await response.json();
     },
     onSuccess: (trip: any) => {
       toast({ title: "Trip created successfully!" });

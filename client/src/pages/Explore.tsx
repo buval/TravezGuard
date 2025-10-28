@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MobileNav } from "@/components/MobileNav";
-import { Link } from "wouter";
-import { MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { MapPin, Shield } from "lucide-react";
 import type { Destination } from "@shared/schema";
 
 export default function Explore() {
   const { isAuthenticated } = useAuth();
+  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
 
   const { data: destinations, isLoading } = useQuery<Destination[]>({
     queryKey: ["/api/destinations"],
@@ -56,6 +58,7 @@ export default function Explore() {
               <Card
                 key={dest.id}
                 className="overflow-hidden cursor-pointer hover-elevate active-elevate-2 group"
+                onClick={() => setSelectedDestination(dest)}
                 data-testid={`card-destination-${dest.id}`}
               >
                 <div className="aspect-[3/2] overflow-hidden relative">
@@ -74,13 +77,19 @@ export default function Explore() {
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <p className="text-sm text-muted-foreground line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                     {dest.description}
                   </p>
-                  <div className="mt-3">
+                  <div className="flex items-center justify-between">
                     <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize">
                       {dest.category}
                     </span>
+                    {dest.visaRequirements && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Shield className="w-3 h-3" />
+                        <span>Visa info</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -107,6 +116,75 @@ export default function Explore() {
           </div>
         )}
       </main>
+
+      {/* Destination Details Dialog */}
+      <Dialog open={!!selectedDestination} onOpenChange={(open) => !open && setSelectedDestination(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedDestination && (
+            <>
+              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6">
+                <img
+                  src={selectedDestination.imageUrl}
+                  alt={selectedDestination.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <DialogHeader>
+                <DialogTitle className="text-2xl">{selectedDestination.name}, {selectedDestination.country}</DialogTitle>
+                <DialogDescription className="text-base leading-relaxed pt-2">
+                  {selectedDestination.description}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Visa & Travel Requirements */}
+              {(selectedDestination.visaRequirements || selectedDestination.travelDocuments) && (
+                <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-primary" />
+                    Visa & Travel Requirements
+                  </h3>
+                  
+                  {selectedDestination.visaRequirements && (
+                    <div className="mb-4">
+                      <p className="font-medium text-sm mb-2">Visa Requirements</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedDestination.visaRequirements}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedDestination.travelDocuments && (
+                    <div className="mb-4">
+                      <p className="font-medium text-sm mb-2">Required Documents</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedDestination.travelDocuments}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-background rounded-lg border border-border">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Important:</strong> Visa and entry requirements can change. Always verify current requirements with the embassy or official government sources before your trip.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {isAuthenticated && (
+                <Button 
+                  size="lg" 
+                  className="w-full mt-4 rounded-full"
+                  onClick={() => window.location.href = "/trips/new"}
+                  data-testid="button-plan-trip"
+                >
+                  Plan a Trip to {selectedDestination.name}
+                </Button>
+              )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <MobileNav />
     </div>
