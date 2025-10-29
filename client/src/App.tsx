@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import Explore from "@/pages/Explore";
+import Borders from "@/pages/Borders";
 import Trips from "@/pages/Trips";
 import TripDetails from "@/pages/TripDetails";
 import Itinerary from "@/pages/Itinerary";
@@ -30,6 +31,7 @@ function Router() {
       
       {/* All other routes are always registered - pages handle auth internally */}
       <Route path="/explore" component={Explore} />
+      <Route path="/borders" component={Borders} />
       <Route path="/trips" component={Trips} />
       <Route path="/trips/new" component={NewTrip} />
       <Route path="/trips/:id" component={TripDetails} />
