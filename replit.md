@@ -50,6 +50,7 @@ Preferred communication style: Simple, everyday language.
   - Trips: `/api/trips`, `/api/trips/:id` (CRUD operations)
   - Itinerary: `/api/itinerary-items` (create/delete)
   - Expenses: `/api/expenses` (POST), `/api/expenses/:id` (PATCH/DELETE), `/api/trips/:id/expenses` (GET)
+  - Borders: Public page (no backend routes, uses external Passport Index API)
 
 **Business Logic Layer**
 - Storage abstraction interface (`IStorage`) defined in `server/storage.ts`
@@ -97,6 +98,65 @@ Preferred communication style: Simple, everyday language.
 - User ID extracted from session claims (`req.user.claims.sub`)
 - Trips and itinerary items scoped to authenticated user
 
+## Application Features
+
+### Pages & Navigation
+
+**Public Pages** (accessible to all users):
+- **Home** (`/`): Welcome page with featured destinations, trip creation, and sign-in
+- **Explore** (`/explore`): Browse and filter all destinations with search functionality
+- **Borders** (`/borders`): Check visa and entry requirements based on passport nationality
+  - 20 passport countries supported (US, UK, Canada, Australia, Germany, France, Italy, Spain, Japan, South Korea, China, India, Brazil, Mexico, Argentina, South Africa, UAE, Singapore, New Zealand, Switzerland)
+  - Real-time visa requirement lookup for all destinations
+  - Color-coded visa status badges (green=visa-free, blue=visa-on-arrival/eVisa/eTA, yellow=visa-required, red=not-admitted)
+  - Stay duration information when applicable
+  - Links to official Passport Index source
+
+**Authenticated Pages** (require login):
+- **My Trips** (`/trips`): View and manage created trips
+- **Trip Details** (`/trips/:id`): View trip details, itinerary, and expenses
+- **New Trip** (`/new-trip`): Create a new trip with destination selection
+- **Profile/Menu**: User profile and settings
+
+**Mobile Navigation**:
+- Bottom navigation bar with 5 items: Home, Explore, Trips (auth required), Borders, Profile/Menu
+- Icons: Home, Search, MapPin, Shield, User
+- Highlights active page
+
+### Borders & Visa Feature
+
+**Visa Data Source**:
+- Free community Passport Index API: `https://rough-sun-2523.fly.dev`
+- Based on official government data from Passport Index
+- No API key required
+- Endpoint: `/visa/{passportCode}/{destinationCode}`
+
+**Implementation Details**:
+- Complete ISO-2 code mapping for all 8 destinations (France→FR, Greece→GR, Japan→JP, Maldives→MV, Peru→PE, Switzerland→CH, Tanzania→TZ, Turkey→TR)
+- In-memory caching of API responses to reduce redundant calls
+- Cache key format: `{passportCode}-{destinationCode}`
+- Comprehensive error handling:
+  - Toast notifications for multiple API failures
+  - Per-card error states with retry guidance
+  - Yellow warning for missing country mappings
+  - Console warnings for debugging
+
+**UI States**:
+- Loading: Spinner with "Checking requirements..." message
+- Success: Color-coded badge with category name, optional duration, and official source link
+- Error: AlertCircle icon with "Failed to load" message and connection guidance
+- Missing mapping: Yellow warning (should not occur for seeded destinations)
+
+### Budget Tracking Feature
+
+**Expense Management**:
+- Add expenses to trips with category, amount, date, and description
+- Categories: Accommodation, Transportation, Food, Activities, Shopping, Other
+- Amount stored in cents for precision, displayed in dollars
+- Edit and delete expenses
+- Total expense calculation per trip
+- Budget vs. actual spending comparison
+
 ## External Dependencies
 
 ### Third-Party Services
@@ -105,6 +165,13 @@ Preferred communication style: Simple, everyday language.
 - **Replit Auth**: OIDC identity provider (issuer URL: `https://replit.com/oidc`)
 - **Neon Database**: Serverless PostgreSQL hosting via `@neondatabase/serverless`
 - Environment variable `DATABASE_URL` required for connection
+
+**External APIs**:
+- **Passport Index API**: Community-maintained visa requirements API
+  - Base URL: `https://rough-sun-2523.fly.dev`
+  - Free, no authentication required
+  - Sources official government data
+  - Used by Borders page for real-time visa lookups
 
 **Development Tools**
 - **Replit Vite Plugins**: Runtime error overlay, cartographer (code navigation), and dev banner for Replit environment
