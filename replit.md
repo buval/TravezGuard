@@ -34,6 +34,18 @@ Preferred communication style: Simple, everyday language.
 - Consistent spacing primitives using Tailwind units (2, 4, 6, 8, 12, 16)
 - Grid patterns: single column (mobile), 2 columns (tablet), 3 columns (desktop)
 
+**Progressive Web App (PWA)**
+- **Web Manifest** (`public/manifest.json`): App metadata, icons, theme colors, display settings
+- **Service Worker** (`public/sw.js`): Network-first caching strategy for offline support
+  - Caches GET requests only (skips mutations to prevent errors)
+  - Skips cross-origin requests (external APIs)
+  - Provides offline fallback for cached pages
+- **Install Capability**: Users can install app on home screen (iOS/Android)
+- **Standalone Mode**: Runs fullscreen without browser chrome
+- **App Icons**: Multiple sizes (192x192, 512x512) for different devices
+- **Theme Integration**: Blue theme color (#2563eb) in status bar
+- **Apple-Specific Tags**: Enhanced iOS PWA support
+
 ### Backend Architecture
 
 **Server Framework**
