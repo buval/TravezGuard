@@ -82,10 +82,15 @@ export function setupAuth(app: Express) {
         password: await hashPassword(req.body.password),
       });
 
-      req.login(user, (err) => {
+      // Regenerate session before login to prevent session fixation attacks
+      req.session.regenerate((err) => {
         if (err) return next(err);
-        const { password, ...userWithoutPassword } = user;
-        res.status(201).json(userWithoutPassword);
+        
+        req.login(user, (loginErr) => {
+          if (loginErr) return next(loginErr);
+          const { password, ...userWithoutPassword } = user;
+          res.status(201).json(userWithoutPassword);
+        });
       });
     } catch (error) {
       next(error);
@@ -98,10 +103,16 @@ export function setupAuth(app: Express) {
       if (!user) {
         return res.status(401).send("Invalid username or password");
       }
-      req.login(user, (err) => {
-        if (err) return next(err);
-        const { password, ...userWithoutPassword } = user;
-        res.status(200).json(userWithoutPassword);
+      
+      // Regenerate session before login to prevent session fixation attacks
+      req.session.regenerate((regenerateErr) => {
+        if (regenerateErr) return next(regenerateErr);
+        
+        req.login(user, (loginErr) => {
+          if (loginErr) return next(loginErr);
+          const { password, ...userWithoutPassword } = user;
+          res.status(200).json(userWithoutPassword);
+        });
       });
     })(req, res, next);
   });
@@ -109,7 +120,12 @@ export function setupAuth(app: Express) {
   app.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
       if (err) return next(err);
-      res.sendStatus(200);
+      
+      // Destroy session to fully clean up after logout
+      req.session.destroy((destroyErr) => {
+        if (destroyErr) return next(destroyErr);
+        res.sendStatus(200);
+      });
     });
   });
 

@@ -27,14 +27,15 @@ export default function Trips() {
           <p className="text-muted-foreground mb-6">
             Please sign in to view and manage your trips
           </p>
-          <Button
-            size="lg"
-            onClick={() => window.location.href = "/api/login"}
-            className="rounded-full w-full"
-            data-testid="button-signin"
-          >
-            Sign In
-          </Button>
+          <Link href="/auth">
+            <Button
+              size="lg"
+              className="rounded-full w-full"
+              data-testid="button-signin"
+            >
+              Sign In
+            </Button>
+          </Link>
         </Card>
       </div>
     );

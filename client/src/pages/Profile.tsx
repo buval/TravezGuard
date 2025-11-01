@@ -4,9 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MobileNav } from "@/components/MobileNav";
 import { Mail, LogOut } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Profile() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logoutMutation } = useAuth();
 
   const getInitials = (name?: string | null) => {
     if (!name) return "U";
@@ -30,14 +31,15 @@ export default function Profile() {
           <p className="text-muted-foreground mb-6">
             Please sign in to view your profile
           </p>
-          <Button
-            size="lg"
-            onClick={() => window.location.href = "/api/login"}
-            className="rounded-full w-full"
-            data-testid="button-signin"
-          >
-            Sign In
-          </Button>
+          <Link href="/auth">
+            <Button
+              size="lg"
+              className="rounded-full w-full"
+              data-testid="button-signin"
+            >
+              Sign In
+            </Button>
+          </Link>
         </Card>
       </div>
     );
@@ -67,6 +69,12 @@ export default function Profile() {
               {getFullName()}
             </h2>
             
+            {user?.username && (
+              <p className="text-sm text-muted-foreground mb-2" data-testid="text-username">
+                @{user.username}
+              </p>
+            )}
+            
             {user?.email && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="w-4 h-4" />
@@ -84,11 +92,12 @@ export default function Profile() {
             <Button
               variant="outline"
               className="w-full justify-start gap-3 rounded-full"
-              onClick={() => window.location.href = "/api/logout"}
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              {logoutMutation.isPending ? "Signing Out..." : "Sign Out"}
             </Button>
           </div>
         </Card>

@@ -2,12 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Calendar, Users } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import logoUrl from "@assets/logo_1761679001485.png";
 import heroBeachUrl from "@assets/generated_images/Hero_beach_paradise_landscape_21ce7151.png";
 import type { Destination } from "@shared/schema";
 
 export default function Landing() {
+  const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // Redirect authenticated users to home
+  if (isAuthenticated) {
+    setLocation("/home");
+    return null;
+  }
+
   // Fetch featured destinations from API
   const { data: featuredDestinations, isLoading } = useQuery<Destination[]>({
     queryKey: ["/api/destinations/featured"],
@@ -39,14 +49,15 @@ export default function Landing() {
           <div className="flex items-center gap-2">
             <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
           </div>
-          <Button
-            variant="default"
-            onClick={() => window.location.href = "/api/login"}
-            className="rounded-full"
-            data-testid="button-login"
-          >
-            Sign In
-          </Button>
+          <Link href="/auth">
+            <Button
+              variant="default"
+              className="rounded-full"
+              data-testid="button-login"
+            >
+              Sign In
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -69,14 +80,15 @@ export default function Landing() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              onClick={() => window.location.href = "/api/login"}
-              className="rounded-full text-base px-8 py-6 font-semibold"
-              data-testid="button-get-started"
-            >
-              Get Started
-            </Button>
+            <Link href="/auth">
+              <Button
+                size="lg"
+                className="rounded-full text-base px-8 py-6 font-semibold"
+                data-testid="button-get-started"
+              >
+                Get Started
+              </Button>
+            </Link>
             <Link href="/explore">
               <Button
                 size="lg"
@@ -161,15 +173,16 @@ export default function Landing() {
           <p className="text-lg md:text-xl mb-8 opacity-90">
             Join thousands of travelers planning their perfect trips with Travez
           </p>
-          <Button
-            size="lg"
-            variant="secondary"
-            onClick={() => window.location.href = "/api/login"}
-            className="rounded-full text-base px-8 py-6 font-semibold"
-            data-testid="button-cta-signin"
-          >
-            Sign In to Get Started
-          </Button>
+          <Link href="/auth">
+            <Button
+              size="lg"
+              variant="secondary"
+              className="rounded-full text-base px-8 py-6 font-semibold"
+              data-testid="button-cta-signin"
+            >
+              Sign In to Get Started
+            </Button>
+          </Link>
         </div>
       </section>
 

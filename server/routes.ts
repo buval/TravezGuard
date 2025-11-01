@@ -66,12 +66,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/trips/:id", async (req, res) => {
+  app.get("/api/trips/:id", isAuthenticated, async (req: any, res) => {
     try {
       const trip = await storage.getTrip(req.params.id);
       if (!trip) {
         return res.status(404).json({ message: "Trip not found" });
       }
+      
+      // Verify the trip belongs to the authenticated user
+      if (trip.userId !== req.user!.id) {
+        return res.status(403).json({ message: "Forbidden - You don't own this trip" });
+      }
+      
       res.json(trip);
     } catch (error) {
       console.error("Error fetching trip:", error);
