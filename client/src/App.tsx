@@ -8,7 +8,6 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/AuthPage";
 import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
-import Explore from "@/pages/Explore";
 import Borders from "@/pages/Borders";
 import Flights from "@/pages/Flights";
 import Trips from "@/pages/Trips";
