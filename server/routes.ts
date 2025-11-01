@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { searchFlights, searchAirports, getFlightInspiration, getPointsOfInterest, getToursAndActivities } from "./amadeus";
+import { searchFlights, searchAirports, getFlightInspiration, getPointsOfInterest, getToursAndActivities, searchCities } from "./amadeus";
 
 // Auth middleware
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -52,6 +52,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching destination:", error);
       res.status(500).json({ message: "Failed to fetch destination" });
+    }
+  });
+
+  // Combined destination search (local DB + Amadeus API)
+  app.get("/api/destinations/search", async (req, res) => {
+    try {
+      const { query } = req.query;
+
+      if (!query || typeof query !== "string" || query.trim().length < 2) {
+        return res.status(400).json({ message: "Search query must be at least 2 characters" });
+      }
+
+      const searchTerm = query.trim().toLowerCase();
+      
+      // Search local database
+      const allDestinations = await storage.getDestinations();
+      const localResults = allDestinations.filter(dest =>
+        dest.name.toLowerCase().includes(searchTerm) ||
+        dest.country.toLowerCase().includes(searchTerm) ||
+        dest.description.toLowerCase().includes(searchTerm)
+      ).map(dest => ({
+        ...dest,
+        source: "database" as const,
+      }));
+
+      // Search Amadeus API for cities (with error handling)
+      let amadeusResults: any[] = [];
+      try {
+        const amadeusResponse = await searchCities(query);
+        amadeusResults = (amadeusResponse.data || []).map((city: any) => ({
+          id: city.iataCode || city.id,
+          name: city.name,
+          country: city.address?.countryName || "Unknown",
+          iataCode: city.iataCode,
+          geoCode: city.geoCode,
+          source: "amadeus" as const,
+          type: city.type,
+        }));
+      } catch (error) {
+        console.error("Amadeus search error (non-blocking):", error);
+        // Continue with just local results if Amadeus fails
+      }
+
+      // Combine results (prioritize local results)
+      const combinedResults = [...localResults, ...amadeusResults];
+
+      res.json({
+        results: combinedResults,
+        localCount: localResults.length,
+        amadeusCount: amadeusResults.length,
+      });
+    } catch (error: any) {
+      console.error("Destination search error:", error);
+      res.status(500).json({ message: error.message || "Failed to search destinations" });
     }
   });
 
