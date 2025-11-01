@@ -37,6 +37,20 @@ Added 12 stunning new destinations with beautiful AI-generated images:
   - Removed separate "Explore" navigation item
 - **Cleaner Interface**: Streamlined navigation reflects the merged Home/Explore experience
 
+### Combined Destination Search (Local Database + Amadeus API)
+- **Intelligent Search**: When users search for destinations, the app now queries both:
+  - Local database (20 curated destinations)
+  - Amadeus API (thousands of cities worldwide)
+- **Visual Distinction**: 
+  - Database destinations: Show full details with images, descriptions, climate, and visa info
+  - Amadeus destinations: Marked with "Explore" badge and gradient background
+- **Debounced Search**: 300ms debounce prevents excessive API calls while typing
+- **Dual Dialogs**:
+  - Database destinations: Full destination details with climate, visa requirements, POIs, and activities
+  - Amadeus cities: Simplified dialog with city information, coordinates, IATA code, and tours & activities (if available)
+- **Seamless Experience**: Users can discover destinations beyond the curated collection without needing to store them in the database
+- **Smart Error Handling**: If Amadeus API fails, search continues with local results only
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
@@ -67,7 +81,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Application Features
 - **Public Pages**:
-    - **Home (`/`)**: Destination discovery with search, filters (Beach, Mountain, City, Cultural, Adventure), and detailed destination dialogs including real-time Tours & Activities (Amadeus API), climate, and visa info.
+    - **Home (`/`)**: Destination discovery with combined search (local database + Amadeus API), filters (Beach, Mountain, City, Cultural, Adventure), and detailed destination dialogs including real-time Tours & Activities (Amadeus API), climate, and visa info. Search discovers thousands of cities worldwide beyond the 20 curated destinations.
     - **Borders (`/borders`)**: Real-time visa and entry requirement checks based on passport nationality using the Passport Index API, with color-coded statuses.
     - **Flights (`/flights`)**: Real-time flight search (one-way/round-trip) powered by Amadeus API, including airport autocomplete.
 - **Authenticated Pages**:
@@ -85,7 +99,12 @@ Preferred communication style: Simple, everyday language.
     -   **Neon Database**: Serverless PostgreSQL hosting.
 -   **External APIs**:
     -   **Passport Index API**: `https://rough-sun-2523.fly.dev` for real-time visa requirements (no API key).
-    -   **Amadeus API**: `https://test.api.amadeus.com` for flight search, airport autocomplete, flight inspiration, and tours & activities (OAuth 2.0 client credentials).
+    -   **Amadeus API**: `https://test.api.amadeus.com` for:
+        -   Flight search and airport autocomplete
+        -   Flight inspiration
+        -   Tours & activities
+        -   **City/destination search** (new: searches thousands of cities worldwide)
+        -   Authentication via OAuth 2.0 client credentials with token caching
 
 ### Key NPM Packages
 -   **UI & Component Libraries**: `@radix-ui/*`, `tailwindcss`, `class-variance-authority`, `clsx`, `lucide-react`, `date-fns`.
