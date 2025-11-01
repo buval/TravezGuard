@@ -255,3 +255,39 @@ export async function getToursAndActivities(params: {
     );
   }
 }
+
+// Search for cities/destinations by keyword
+export async function searchCities(keyword: string) {
+  console.log("[Amadeus] Searching cities:", keyword);
+  
+  try {
+    const token = await getAccessToken();
+
+    const response = await axios.get(
+      `${AMADEUS_BASE_URL}/v1/reference-data/locations`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          keyword,
+          subType: "CITY",
+          page: { limit: 20 },
+        },
+      }
+    );
+
+    console.log(`[Amadeus] Found ${response.data.data?.length || 0} cities`);
+    return response.data;
+  } catch (error: any) {
+    console.error("[Amadeus] City search error:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+    });
+    throw new Error(
+      error.response?.data?.errors?.[0]?.detail || "Failed to search cities"
+    );
+  }
+}
