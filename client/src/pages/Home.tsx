@@ -75,17 +75,13 @@ export default function Home() {
 
   // Fetch Activities for selected Amadeus city (if it has coordinates)
   const amadeusCity = selectedAmadeusCity as any;
+  const amadeusActivitiesUrl = amadeusCity?.geoCode 
+    ? `/api/destinations/amadeus/activities?latitude=${amadeusCity.geoCode.latitude}&longitude=${amadeusCity.geoCode.longitude}`
+    : null;
+  
   const { data: amadeusActivities, isLoading: amadeusActivitiesLoading } = useQuery<any>({
-    queryKey: ["/api/amadeus/activities", amadeusCity?.geoCode?.latitude, amadeusCity?.geoCode?.longitude],
-    queryFn: async () => {
-      if (!amadeusCity?.geoCode) return null;
-      const response = await fetch(
-        `/api/destinations/amadeus/activities?latitude=${amadeusCity.geoCode.latitude}&longitude=${amadeusCity.geoCode.longitude}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch activities");
-      return response.json();
-    },
-    enabled: !!selectedAmadeusCity && !!amadeusCity?.geoCode,
+    queryKey: [amadeusActivitiesUrl],
+    enabled: !!selectedAmadeusCity && !!amadeusCity?.geoCode && !!amadeusActivitiesUrl,
   });
 
   // Filter and search destinations
