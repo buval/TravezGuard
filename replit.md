@@ -5,6 +5,12 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 
 ## Recent Changes (November 2025)
 
+### Production Database Seeding Fix (November 1, 2025)
+- **Issue Fixed**: Production database only had 8 destinations while development had 20
+- **Solution**: Updated `seedDatabase()` function to intelligently detect missing destinations
+- **Behavior**: Now automatically adds missing destinations without duplicating existing ones
+- **Impact**: After republishing, production will have all 20 destinations automatically
+
 ### Home and Explore Page Merge
 - **Consolidated Functionality**: The Explore page has been merged into the Home page (`/`). All destination browsing features (search, category filters, destination cards) are now on the Home page.
 - **Route Redirects**: Both `/explore` and `/home` routes now redirect to `/` to maintain backwards compatibility.

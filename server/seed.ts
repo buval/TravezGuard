@@ -289,16 +289,32 @@ export async function seedDatabase() {
   try {
     console.log("Seeding destinations...");
     
-    // Check if destinations already exist
-    const existing = await db.select().from(destinations).limit(1);
-    if (existing.length > 0) {
-      console.log("Destinations already seeded, skipping...");
+    // Check if we have all destinations (should be 20 total)
+    const existing = await db.select().from(destinations);
+    const existingCount = existing.length;
+    const expectedCount = seedDestinations.length;
+    
+    if (existingCount === expectedCount) {
+      console.log(`All ${expectedCount} destinations already seeded, skipping...`);
+      return;
+    }
+    
+    if (existingCount > 0 && existingCount < expectedCount) {
+      console.log(`Found ${existingCount} destinations, but expected ${expectedCount}. Adding missing destinations...`);
+      
+      // Get existing destination names to avoid duplicates
+      const existingNames = existing.map(d => d.name);
+      const missingDestinations = seedDestinations.filter(d => !existingNames.includes(d.name));
+      
+      if (missingDestinations.length > 0) {
+        await db.insert(destinations).values(missingDestinations);
+        console.log(`Successfully added ${missingDestinations.length} missing destinations`);
+      }
       return;
     }
 
-    // Insert all destinations
+    // No destinations exist, insert all
     await db.insert(destinations).values(seedDestinations);
-    
     console.log(`Successfully seeded ${seedDestinations.length} destinations`);
   } catch (error) {
     console.error("Error seeding database:", error);
