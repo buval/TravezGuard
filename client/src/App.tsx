@@ -23,12 +23,14 @@ function Router() {
       {/* Auth page for login/register */}
       <Route path="/auth" component={AuthPage} />
       
-      {/* Root route - Landing handles auth redirect */}
-      <Route path="/" component={Landing} />
+      {/* Root route - Home page with all destinations */}
+      <Route path="/" component={Home} />
+      
+      {/* Redirect old routes to home */}
+      <Route path="/explore" component={() => { window.location.href = "/"; return null; }} />
+      <Route path="/home" component={() => { window.location.href = "/"; return null; }} />
       
       {/* All other routes - pages handle auth internally */}
-      <Route path="/home" component={Home} />
-      <Route path="/explore" component={Explore} />
       <Route path="/borders" component={Borders} />
       <Route path="/flights" component={Flights} />
       <Route path="/trips" component={Trips} />

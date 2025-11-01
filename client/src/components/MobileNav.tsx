@@ -6,7 +6,6 @@ export function MobileNav() {
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: Compass, label: "Explore", path: "/explore" },
     { icon: Shield, label: "Borders", path: "/borders" },
     { icon: Plane, label: "Flights", path: "/flights" },
     { icon: Map, label: "Trips", path: "/trips" },
