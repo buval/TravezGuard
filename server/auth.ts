@@ -72,6 +72,16 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      // Validate username length
+      if (!req.body.username || req.body.username.length < 3) {
+        return res.status(400).send("Username must be at least 3 characters");
+      }
+
+      // Validate password length
+      if (!req.body.password || req.body.password.length < 6) {
+        return res.status(400).send("Password must be at least 6 characters");
+      }
+
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(400).send("Username already exists");
