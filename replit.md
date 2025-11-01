@@ -64,6 +64,7 @@ Preferred communication style: Simple, everyday language.
   - Expenses: `/api/expenses` (POST), `/api/expenses/:id` (PATCH/DELETE), `/api/trips/:id/expenses` (GET)
   - Borders: Public page (no backend routes, uses external Passport Index API)
   - Flights: `/api/flights/search`, `/api/airports/search`, `/api/flights/inspiration` (public routes, powered by Amadeus API)
+  - Destination Experiences: `/api/destinations/:id/pois`, `/api/destinations/:id/activities` (public routes, powered by Amadeus API)
 
 **Business Logic Layer**
 - Storage abstraction interface (`IStorage`) defined in `server/storage.ts`
@@ -80,7 +81,7 @@ Preferred communication style: Simple, everyday language.
 **Schema Design**
 - `users` table: Stores user profile data from Replit Auth (email, name, profile image)
 - `sessions` table: Server-side session storage for authentication
-- `destinations` table: Pre-seeded travel destinations with categories, featured flags, climate data, and best months to visit
+- `destinations` table: Pre-seeded travel destinations with categories, featured flags, climate data, best months to visit, and geographic coordinates (latitude/longitude) for Amadeus API integration
 - `trips` table: User-created trips with references to destinations, date ranges, and optional budget field
 - `itineraryItems` table: Day-by-day activities linked to trips
 - `expenses` table: Trip expense tracking with category, amount (stored in cents for precision), date, and description fields
@@ -118,6 +119,11 @@ Preferred communication style: Simple, everyday language.
 **Public Pages** (accessible to all users):
 - **Home** (`/`): Welcome page with featured destinations, trip creation, and sign-in
 - **Explore** (`/explore`): Browse and filter all destinations with search functionality
+  - **Destination Details Dialog**: Click any destination to view detailed information
+    - Real-time Points of Interest from Amadeus API (when available)
+    - Real-time Tours & Activities from Amadeus API with ratings, prices, and booking links
+    - Climate and weather information
+    - Visa requirements and travel documents
 - **Borders** (`/borders`): Check visa and entry requirements based on passport nationality
   - 20 passport countries supported (US, UK, Canada, Australia, Germany, France, Italy, Spain, Japan, South Korea, China, India, Brazil, Mexico, Argentina, South Africa, UAE, Singapore, New Zealand, Switzerland)
   - Real-time visa requirement lookup for all destinations
@@ -199,10 +205,16 @@ Preferred communication style: Simple, everyday language.
   - Base URL: `https://test.api.amadeus.com` (test environment)
   - OAuth 2.0 client credentials flow for authentication
   - 30-minute token expiry with automatic refresh
-  - Features: Flight search (500+ airlines), airport autocomplete, flight inspiration
+  - Features implemented:
+    - **Flight Search**: Search 500+ airlines for one-way and round-trip flights
+    - **Airport Autocomplete**: Search airports by city/airport name with IATA codes
+    - **Flight Inspiration**: Discover flight destinations based on origin and budget
+    - **Tours & Activities**: Get tours, activities, ratings, and prices for destinations (location-based)
+    - **Points of Interest** (deprecated): POI endpoint decommissioned by Amadeus (410 status), gracefully handled
   - Credentials stored in `AMADEUS_API_KEY` and `AMADEUS_API_SECRET` environment variables
   - Implementation in `server/amadeus.ts` with token caching and error handling
-  - Used by Flights page for real-time flight search (accessible to guests and authenticated users)
+  - Used by Flights page and Explore page (accessible to guests and authenticated users)
+  - Error handling: API failures return empty results instead of 500 errors for better UX
 
 **Development Tools**
 - **Replit Vite Plugins**: Runtime error overlay, cartographer (code navigation), and dev banner for Replit environment
