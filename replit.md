@@ -4,6 +4,26 @@
 
 Travez is a mobile-first travel planning application that allows users to discover destinations, create trips, and build detailed day-by-day itineraries. The app features a visually-rich, app-like interface inspired by premium travel platforms like Airbnb and Booking.com, with a focus on inspiring wanderlust through destination imagery and effortless navigation.
 
+## Recent Changes (November 2025)
+
+- **Merged Home and Explore pages**: The Explore page functionality has been consolidated into the Home page at `/` route. The `/explore` and `/home` routes now redirect to `/`.
+- **Updated Navigation**: Mobile navigation bar now has 5 items (removed separate Explore link): Home, Borders, Flights, Trips, Profile
+- **Expanded Destination Database**: Added 12 new stunning destinations with beautiful AI-generated images:
+  - **Bali, Indonesia** (Beach, Featured) - Rice terraces and tropical beaches
+  - **Iceland** (Adventure, Featured) - Northern Lights and volcanic landscapes
+  - **New York City, USA** (City, Featured) - Iconic skyline and urban culture
+  - **Dubai, UAE** (City, Featured) - Modern skyscrapers and luxury
+  - **Petra, Jordan** (Cultural, Featured) - Ancient rose-red city
+  - **Banff, Canada** (Mountain, Featured) - Turquoise lakes and Rocky Mountains
+  - **Bora Bora, French Polynesia** (Beach) - Overwater bungalows and lagoons
+  - **Venice, Italy** (City) - Romantic canals and architecture
+  - **Norwegian Fjords, Norway** (Mountain) - Dramatic cliffs and waterfalls
+  - **Barcelona, Spain** (City) - Gaudí architecture and Mediterranean coast
+  - **Great Barrier Reef, Australia** (Beach) - World's largest coral reef
+  - **Marrakech, Morocco** (Cultural) - Vibrant souks and exotic culture
+- **Total Destinations**: Now 20 destinations (previously 8) with comprehensive visa, climate, and travel information
+- **Improved User Experience**: Single Home page provides seamless destination discovery for both guest and authenticated users
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -117,13 +137,17 @@ Preferred communication style: Simple, everyday language.
 ### Pages & Navigation
 
 **Public Pages** (accessible to all users):
-- **Home** (`/`): Welcome page with featured destinations, trip creation, and sign-in
-- **Explore** (`/explore`): Browse and filter all destinations with search functionality
+- **Home** (`/`): Discover and browse all destinations with search, filters, and category selection
+  - Search bar for finding destinations by name, country, or description
+  - Category filters: All, Beach, Mountain, City, Cultural, Adventure
+  - Responsive grid of destination cards (1 column mobile, 2 tablet, 3 desktop)
   - **Destination Details Dialog**: Click any destination to view detailed information
-    - Real-time Points of Interest from Amadeus API (when available)
+    - Real-time Points of Interest from Amadeus API (when available - POI endpoint deprecated)
     - Real-time Tours & Activities from Amadeus API with ratings, prices, and booking links
     - Climate and weather information
     - Visa requirements and travel documents
+  - Sign-in prompt for unauthenticated users
+  - **Note**: `/explore` and `/home` routes redirect to `/` (merged into single Home page)
 - **Borders** (`/borders`): Check visa and entry requirements based on passport nationality
   - 20 passport countries supported (US, UK, Canada, Australia, Germany, France, Italy, Spain, Japan, South Korea, China, India, Brazil, Mexico, Argentina, South Africa, UAE, Singapore, New Zealand, Switzerland)
   - Real-time visa requirement lookup for all destinations
@@ -148,9 +172,10 @@ Preferred communication style: Simple, everyday language.
 - **Profile/Menu**: User profile and settings
 
 **Mobile Navigation**:
-- Bottom navigation bar with 6 items: Home, Explore, Borders, Flights, Trips (auth required), Profile/Menu
-- Icons: Home, Compass, Shield, Plane, Map, User
+- Bottom navigation bar with 5 items: Home, Borders, Flights, Trips (auth required), Profile/Menu
+- Icons: Home, Shield, Plane, Map, User
 - Highlights active page
+- **Note**: Explore removed as it's now merged into Home page
 
 ### Borders & Visa Feature
 
@@ -161,7 +186,7 @@ Preferred communication style: Simple, everyday language.
 - Endpoint: `/visa/{passportCode}/{destinationCode}`
 
 **Implementation Details**:
-- Complete ISO-2 code mapping for all 8 destinations (France→FR, Greece→GR, Japan→JP, Maldives→MV, Peru→PE, Switzerland→CH, Tanzania→TZ, Turkey→TR)
+- Complete ISO-2 code mapping for all 20 destinations including newly added countries
 - In-memory caching of API responses to reduce redundant calls
 - Cache key format: `{passportCode}-{destinationCode}`
 - Comprehensive error handling:
