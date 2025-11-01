@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MobileNav } from "@/components/MobileNav";
+import { AirportSearch } from "@/components/AirportSearch";
 import { Plane, Search, Clock, Calendar as CalendarIcon, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 
@@ -34,8 +35,10 @@ interface FlightOffer {
 }
 
 export default function Flights() {
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
+  const [originCode, setOriginCode] = useState("");
+  const [originDisplay, setOriginDisplay] = useState("");
+  const [destinationCode, setDestinationCode] = useState("");
+  const [destinationDisplay, setDestinationDisplay] = useState("");
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [adults, setAdults] = useState("1");
@@ -49,13 +52,13 @@ export default function Flights() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!origin || !destination || !departureDate || !adults) {
+    if (!originCode || !destinationCode || !departureDate || !adults) {
       return;
     }
 
     const params = new URLSearchParams({
-      origin: origin.toUpperCase(),
-      destination: destination.toUpperCase(),
+      origin: originCode,
+      destination: destinationCode,
       departureDate,
       adults,
     });
@@ -106,34 +109,36 @@ export default function Flights() {
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="origin">From (Airport Code)</Label>
-                  <Input
-                    id="origin"
-                    placeholder="e.g., JFK, LAX, LHR"
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    data-testid="input-flight-origin"
-                    className="uppercase"
-                    maxLength={3}
+                  <Label>From</Label>
+                  <AirportSearch
+                    value={originCode}
+                    displayValue={originDisplay}
+                    onSelect={(code, display) => {
+                      setOriginCode(code);
+                      setOriginDisplay(display);
+                    }}
+                    placeholder="Search city or airport..."
+                    testId="input-flight-origin"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Enter 3-letter airport code
+                    Search by city or airport name
                   </p>
                 </div>
 
                 <div>
-                  <Label htmlFor="destination">To (Airport Code)</Label>
-                  <Input
-                    id="destination"
-                    placeholder="e.g., JFK, LAX, LHR"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    data-testid="input-flight-destination"
-                    className="uppercase"
-                    maxLength={3}
+                  <Label>To</Label>
+                  <AirportSearch
+                    value={destinationCode}
+                    displayValue={destinationDisplay}
+                    onSelect={(code, display) => {
+                      setDestinationCode(code);
+                      setDestinationDisplay(display);
+                    }}
+                    placeholder="Search city or airport..."
+                    testId="input-flight-destination"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Enter 3-letter airport code
+                    Search by city or airport name
                   </p>
                 </div>
               </div>
