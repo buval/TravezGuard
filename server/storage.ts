@@ -6,7 +6,7 @@ import {
   itineraryItems,
   expenses,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type Destination,
   type InsertDestination,
   type Trip,
@@ -16,14 +16,20 @@ import {
   type Expense,
   type InsertExpense,
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, desc } from "drizzle-orm";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+
+const PostgresSessionStore = connectPg(session);
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (Required for Replit Auth)
+  // User operations
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  sessionStore: session.Store;
   
   // Destination operations
   getDestinations(): Promise<Destination[]>;
@@ -51,23 +57,30 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (Required for Replit Auth)
+  sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({ 
+      pool, 
+      createTableIfMissing: true 
+    });
+  }
+
+  // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
       .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
       .returning();
     return user;
   }

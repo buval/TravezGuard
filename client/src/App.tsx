@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import NotFound from "@/pages/not-found";
+import AuthPage from "@/pages/AuthPage";
 import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import Explore from "@/pages/Explore";
@@ -16,20 +17,16 @@ import NewTrip from "@/pages/NewTrip";
 import Profile from "@/pages/Profile";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  // Show Landing for unauthenticated users at root, but all other routes are accessible
-  // and will handle their own authentication requirements
   return (
     <Switch>
-      {/* Root route changes based on auth state */}
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <Route path="/" component={Home} />
-      )}
+      {/* Auth page for login/register */}
+      <Route path="/auth" component={AuthPage} />
       
-      {/* All other routes are always registered - pages handle auth internally */}
+      {/* Root route - Landing handles auth redirect */}
+      <Route path="/" component={Landing} />
+      
+      {/* All other routes - pages handle auth internally */}
+      <Route path="/home" component={Home} />
       <Route path="/explore" component={Explore} />
       <Route path="/borders" component={Borders} />
       <Route path="/trips" component={Trips} />

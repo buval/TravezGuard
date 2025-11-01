@@ -1,25 +1,24 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth } from "./auth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware (from blueprint:javascript_log_in_with_replit)
-  await setupAuth(app);
+// Auth middleware
+function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "Unauthorized" });
+}
 
-  // Auth routes (from blueprint:javascript_log_in_with_replit)
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup username/password authentication
+  setupAuth(app);
+
+  // Note: /api/register, /api/login, /api/logout, /api/user routes 
+  // are handled in setupAuth (auth.ts)
 
   // Destination routes
   app.get("/api/destinations", async (req, res) => {
@@ -58,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Trip routes (protected)
   app.get("/api/trips", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.id;
       const trips = await storage.getUserTrips(userId);
       res.json(trips);
     } catch (error) {
@@ -82,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/trips", isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user!.id;
       
       const validation = insertTripSchema.safeParse(req.body);
       if (!validation.success) {
