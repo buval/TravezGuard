@@ -42,20 +42,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/destinations/:id", async (req, res) => {
-    try {
-      const destination = await storage.getDestination(req.params.id);
-      if (!destination) {
-        return res.status(404).json({ message: "Destination not found" });
-      }
-      res.json(destination);
-    } catch (error) {
-      console.error("Error fetching destination:", error);
-      res.status(500).json({ message: "Failed to fetch destination" });
-    }
-  });
-
   // Combined destination search (local DB + Amadeus API)
+  // MUST come before /api/destinations/:id to avoid "search" being treated as an ID
   app.get("/api/destinations/search", async (req, res) => {
     try {
       const { query } = req.query;
@@ -106,6 +94,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Destination search error:", error);
       res.status(500).json({ message: error.message || "Failed to search destinations" });
+    }
+  });
+
+  // Must come AFTER /api/destinations/search to avoid route conflicts
+  app.get("/api/destinations/:id", async (req, res) => {
+    try {
+      const destination = await storage.getDestination(req.params.id);
+      if (!destination) {
+        return res.status(404).json({ message: "Destination not found" });
+      }
+      res.json(destination);
+    } catch (error) {
+      console.error("Error fetching destination:", error);
+      res.status(500).json({ message: "Failed to fetch destination" });
     }
   });
 

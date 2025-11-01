@@ -52,13 +52,17 @@ export default function Home() {
   });
 
   // Search destinations (DB + Amadeus) when user types
+  const searchUrl = debouncedSearchQuery.trim().length >= 2 
+    ? `/api/destinations/search?query=${encodeURIComponent(debouncedSearchQuery)}`
+    : null;
+    
   const { data: searchResults, isLoading: searchLoading } = useQuery<{
     results: DestinationSearchResult[];
     localCount: number;
     amadeusCount: number;
   }>({
-    queryKey: ["/api/destinations/search", debouncedSearchQuery],
-    enabled: debouncedSearchQuery.trim().length >= 2,
+    queryKey: [searchUrl],
+    enabled: !!searchUrl,
   });
 
   // Fetch POIs for selected destination
@@ -67,10 +71,12 @@ export default function Home() {
     enabled: !!selectedDestination,
   });
 
-  // Fetch Activities for selected destination
+  // Only fetch activities if it's a database destination
+  const isDatabaseDestination = selectedDestination && 'source' in selectedDestination && selectedDestination.source === "database";
+  
   const { data: activities, isLoading: activitiesLoading } = useQuery<any>({
     queryKey: [`/api/destinations/${selectedDestination?.id}/activities`],
-    enabled: !!selectedDestination && selectedDestination.source === "database",
+    enabled: !!isDatabaseDestination,
   });
 
   // Fetch Activities for selected Amadeus city (if it has coordinates)
@@ -326,93 +332,97 @@ export default function Home() {
         )}
       </main>
 
-      {/* Destination Details Dialog */}
-      <Dialog open={!!selectedDestination} onOpenChange={(open) => !open && setSelectedDestination(null)}>
+      {/* Destination Details Dialog - Only for database destinations */}
+      <Dialog open={!!selectedDestination && !!isDatabaseDestination} onOpenChange={(open) => !open && setSelectedDestination(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {selectedDestination && (
+          {selectedDestination && isDatabaseDestination && (
             <>
-              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6">
-                <img
-                  src={selectedDestination.imageUrl}
-                  alt={selectedDestination.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <DialogHeader>
-                <DialogTitle className="text-2xl">{selectedDestination.name}, {selectedDestination.country}</DialogTitle>
-                <DialogDescription className="text-base leading-relaxed pt-2">
-                  {selectedDestination.description}
-                </DialogDescription>
-              </DialogHeader>
+              {(() => {
+                const dest = selectedDestination as Destination;
+                return (
+                  <>
+                    <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6">
+                      <img
+                        src={dest.imageUrl}
+                        alt={dest.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl">{dest.name}, {dest.country}</DialogTitle>
+                      <DialogDescription className="text-base leading-relaxed pt-2">
+                        {dest.description}
+                      </DialogDescription>
+                    </DialogHeader>
 
-              {/* Weather & Climate Information */}
-              {(selectedDestination.climate || selectedDestination.bestMonths) && (
+                    {/* Weather & Climate Information */}
+                    {(dest.climate || dest.bestMonths) && (
                 <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900/50">
-                  <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Sun className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    Climate & Best Time to Visit
-                  </h3>
-                  
-                  {selectedDestination.climate && (
-                    <div className="mb-4">
-                      <p className="font-medium text-sm mb-2 flex items-center gap-2">
-                        <Sun className="w-4 h-4" />
-                        Climate
-                      </p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {selectedDestination.climate}
-                      </p>
-                    </div>
-                  )}
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <Sun className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        Climate & Best Time to Visit
+                      </h3>
+                      
+                      {dest.climate && (
+                        <div className="mb-4">
+                          <p className="font-medium text-sm mb-2 flex items-center gap-2">
+                            <Sun className="w-4 h-4" />
+                            Climate
+                          </p>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {dest.climate}
+                          </p>
+                        </div>
+                      )}
 
-                  {selectedDestination.bestMonths && (
-                    <div>
-                      <p className="font-medium text-sm mb-2 flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Best Time to Visit
-                      </p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {selectedDestination.bestMonths}
-                      </p>
+                      {dest.bestMonths && (
+                        <div>
+                          <p className="font-medium text-sm mb-2 flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            Best Time to Visit
+                          </p>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {dest.bestMonths}
+                          </p>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              )}
+                    )}
 
-              {/* Visa & Travel Requirements */}
-              {(selectedDestination.visaRequirements || selectedDestination.travelDocuments) && (
-                <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                  <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-primary" />
-                    Visa & Travel Requirements
-                  </h3>
-                  
-                  {selectedDestination.visaRequirements && (
-                    <div className="mb-4">
-                      <p className="font-medium text-sm mb-2">Visa Requirements</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {selectedDestination.visaRequirements}
-                      </p>
-                    </div>
-                  )}
+                    {/* Visa & Travel Requirements */}
+                    {(dest.visaRequirements || dest.travelDocuments) && (
+                      <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                        <h3 className="font-semibold mb-4 flex items-center gap-2">
+                          <Shield className="w-5 h-5 text-primary" />
+                          Visa & Travel Requirements
+                        </h3>
+                        
+                        {dest.visaRequirements && (
+                          <div className="mb-4">
+                            <p className="font-medium text-sm mb-2">Visa Requirements</p>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {dest.visaRequirements}
+                            </p>
+                          </div>
+                        )}
 
-                  {selectedDestination.travelDocuments && (
-                    <div className="mb-4">
-                      <p className="font-medium text-sm mb-2">Required Documents</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {selectedDestination.travelDocuments}
-                      </p>
-                    </div>
-                  )}
+                        {dest.travelDocuments && (
+                          <div className="mb-4">
+                            <p className="font-medium text-sm mb-2">Required Documents</p>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {dest.travelDocuments}
+                            </p>
+                          </div>
+                        )}
 
-                  <div className="p-3 bg-background rounded-lg border border-border">
-                    <p className="text-xs text-muted-foreground">
-                      <strong>Important:</strong> Visa and entry requirements can change. Always verify current requirements with the embassy or official government sources before your trip.
-                    </p>
-                  </div>
-                </div>
-              )}
+                        <div className="p-3 bg-background rounded-lg border border-border">
+                          <p className="text-xs text-muted-foreground">
+                            <strong>Important:</strong> Visa and entry requirements can change. Always verify current requirements with the embassy or official government sources before your trip.
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
               {/* Points of Interest */}
               {pois?.data && pois.data.length > 0 && (
@@ -506,16 +516,19 @@ export default function Home() {
                 </div>
               )}
 
-              {isAuthenticated && (
-                <Button 
-                  size="lg" 
-                  className="w-full mt-4 rounded-full"
-                  onClick={() => window.location.href = "/trips/new"}
-                  data-testid="button-plan-trip"
-                >
-                  Plan a Trip to {selectedDestination.name}
-                </Button>
-              )}
+                    {isAuthenticated && (
+                      <Button 
+                        size="lg" 
+                        className="w-full mt-4 rounded-full"
+                        onClick={() => window.location.href = "/trips/new"}
+                        data-testid="button-plan-trip"
+                      >
+                        Plan a Trip to {dest.name}
+                      </Button>
+                    )}
+                  </>
+                );
+              })()}
             </>
           )}
         </DialogContent>
