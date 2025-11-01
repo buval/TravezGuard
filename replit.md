@@ -125,7 +125,11 @@ Preferred communication style: Simple, everyday language.
   - Stay duration information when applicable
   - Links to official Passport Index source
 - **Flights** (`/flights`): Real-time flight search powered by Amadeus API
-  - Search flights between any airports using 3-letter IATA codes (e.g., JFK, LAX, LHR)
+  - **Autocomplete Airport Search**: Search airports by city or airport names (e.g., "New York", "Los Angeles", "Paris")
+    - AirportSearch component with debounced input (300ms)
+    - Displays city name, airport name, country, and IATA code
+    - Minimum 2 characters required to trigger search
+    - User-friendly "City (CODE)" display format
   - One-way or round-trip options
   - Passenger count configuration (1-9 adults)
   - Results display flight details, duration, stops, prices in USD
