@@ -173,6 +173,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Amadeus Activities route (public - for any city with coordinates)
+  app.get("/api/destinations/amadeus/activities", async (req, res) => {
+    try {
+      const { latitude, longitude, radius } = req.query;
+
+      if (!latitude || !longitude) {
+        return res.status(400).json({ 
+          message: "Missing required parameters: latitude, longitude" 
+        });
+      }
+
+      const results = await getToursAndActivities({
+        latitude: parseFloat(latitude as string),
+        longitude: parseFloat(longitude as string),
+        radius: radius ? parseInt(radius as string) : 5,
+      });
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("Amadeus activities error:", error);
+      res.status(500).json({ message: error.message || "Failed to get tours and activities" });
+    }
+  });
+
   // Destination Experiences routes (public - accessible to guests and authenticated users)
   app.get("/api/destinations/:id/pois", async (req, res) => {
     try {
