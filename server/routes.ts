@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { searchFlights, searchAirports, getFlightInspiration } from "./amadeus";
+import { searchFlights, searchAirports, getFlightInspiration, getPointsOfInterest, getToursAndActivities } from "./amadeus";
 
 // Auth middleware
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -116,6 +116,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Flight inspiration error:", error);
       res.status(500).json({ message: error.message || "Failed to get flight inspiration" });
+    }
+  });
+
+  // Destination Experiences routes (public - accessible to guests and authenticated users)
+  app.get("/api/destinations/:id/pois", async (req, res) => {
+    try {
+      const destination = await storage.getDestination(req.params.id);
+      if (!destination) {
+        return res.status(404).json({ message: "Destination not found" });
+      }
+
+      if (!destination.latitude || !destination.longitude) {
+        return res.status(400).json({ 
+          message: "Destination coordinates not available" 
+        });
+      }
+
+      const results = await getPointsOfInterest({
+        latitude: parseFloat(destination.latitude),
+        longitude: parseFloat(destination.longitude),
+        radius: 5,
+      });
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("POI search error:", error);
+      res.status(500).json({ message: error.message || "Failed to get points of interest" });
+    }
+  });
+
+  app.get("/api/destinations/:id/activities", async (req, res) => {
+    try {
+      const destination = await storage.getDestination(req.params.id);
+      if (!destination) {
+        return res.status(404).json({ message: "Destination not found" });
+      }
+
+      if (!destination.latitude || !destination.longitude) {
+        return res.status(400).json({ 
+          message: "Destination coordinates not available" 
+        });
+      }
+
+      const results = await getToursAndActivities({
+        latitude: parseFloat(destination.latitude),
+        longitude: parseFloat(destination.longitude),
+        radius: 5,
+      });
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("Activities search error:", error);
+      res.status(500).json({ message: error.message || "Failed to get tours and activities" });
     }
   });
 

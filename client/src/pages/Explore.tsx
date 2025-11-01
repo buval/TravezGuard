@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { MobileNav } from "@/components/MobileNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { MapPin, Shield, Search, X, Sun, Calendar } from "lucide-react";
+import { MapPin, Shield, Search, X, Sun, Calendar, Landmark, Activity, ExternalLink, Star } from "lucide-react";
 import type { Destination } from "@shared/schema";
 
 const CATEGORIES = [
@@ -26,6 +26,18 @@ export default function Explore() {
 
   const { data: destinations, isLoading } = useQuery<Destination[]>({
     queryKey: ["/api/destinations"],
+  });
+
+  // Fetch POIs for selected destination
+  const { data: pois, isLoading: poisLoading } = useQuery<any>({
+    queryKey: ["/api/destinations", selectedDestination?.id, "pois"],
+    enabled: !!selectedDestination,
+  });
+
+  // Fetch Activities for selected destination
+  const { data: activities, isLoading: activitiesLoading } = useQuery<any>({
+    queryKey: ["/api/destinations", selectedDestination?.id, "activities"],
+    enabled: !!selectedDestination,
   });
 
   // Filter and search destinations
@@ -329,6 +341,98 @@ export default function Explore() {
                       <strong>Important:</strong> Visa and entry requirements can change. Always verify current requirements with the embassy or official government sources before your trip.
                     </p>
                   </div>
+                </div>
+              )}
+
+              {/* Points of Interest */}
+              {pois?.data && pois.data.length > 0 && (
+                <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900/50">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <Landmark className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    Top Attractions & Places
+                  </h3>
+                  <div className="space-y-3">
+                    {pois.data.slice(0, 5).map((poi: any) => (
+                      <div key={poi.id} className="flex items-start gap-3 p-3 bg-background rounded-lg border border-border">
+                        <MapPin className="w-4 h-4 mt-1 text-green-600 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm">{poi.name}</p>
+                          {poi.category && (
+                            <p className="text-xs text-muted-foreground mt-1 capitalize">
+                              {poi.category}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Powered by Amadeus - Real-time attraction data
+                  </p>
+                </div>
+              )}
+              {poisLoading && (
+                <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900/50">
+                  <p className="text-sm text-muted-foreground">Loading attractions...</p>
+                </div>
+              )}
+
+              {/* Tours & Activities */}
+              {activities?.data && activities.data.length > 0 && (
+                <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                    Popular Tours & Activities
+                  </h3>
+                  <div className="space-y-3">
+                    {activities.data.slice(0, 5).map((activity: any) => (
+                      <div key={activity.id} className="p-3 bg-background rounded-lg border border-border">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm line-clamp-2">{activity.name}</p>
+                            {activity.shortDescription && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {activity.shortDescription}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-3 mt-2">
+                              {activity.rating && (
+                                <div className="flex items-center gap-1 text-xs">
+                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                  <span>{activity.rating}</span>
+                                </div>
+                              )}
+                              {activity.price?.amount && (
+                                <span className="text-xs font-medium text-primary">
+                                  {activity.price.currencyCode} {activity.price.amount}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {activity.bookingLink && (
+                            <a
+                              href={activity.bookingLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="shrink-0"
+                            >
+                              <Button size="sm" variant="outline" className="h-8">
+                                <ExternalLink className="w-3 h-3" />
+                              </Button>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    Powered by Amadeus - Book directly with providers
+                  </p>
+                </div>
+              )}
+              {activitiesLoading && (
+                <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
+                  <p className="text-sm text-muted-foreground">Loading activities...</p>
                 </div>
               )}
 
