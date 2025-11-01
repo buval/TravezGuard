@@ -44,7 +44,7 @@ async function getAccessToken(): Promise<string> {
     tokenExpiry = Date.now() + response.data.expires_in * 1000;
 
     console.log("[Amadeus] Successfully obtained access token");
-    return cachedToken;
+    return cachedToken!;
   } catch (error: any) {
     console.error("[Amadeus] Auth error:", {
       status: error.response?.status,
@@ -169,5 +169,89 @@ export async function getFlightInspiration(params: {
       error.response?.data || error.message
     );
     throw new Error("Failed to get flight inspiration");
+  }
+}
+
+// Get Points of Interest for a destination
+export async function getPointsOfInterest(params: {
+  latitude: number;
+  longitude: number;
+  radius?: number;
+}) {
+  console.log("[Amadeus] Getting Points of Interest:", params);
+  
+  try {
+    const token = await getAccessToken();
+
+    const queryParams: any = {
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius || 5, // Default 5km radius
+    };
+
+    const response = await axios.get(
+      `${AMADEUS_BASE_URL}/v1/reference-data/locations/pois`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: queryParams,
+      }
+    );
+
+    console.log(`[Amadeus] Found ${response.data.data?.length || 0} POIs`);
+    return response.data;
+  } catch (error: any) {
+    console.error("[Amadeus] POI search error:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+    });
+    throw new Error(
+      error.response?.data?.errors?.[0]?.detail || "Failed to get points of interest"
+    );
+  }
+}
+
+// Get Tours and Activities for a destination
+export async function getToursAndActivities(params: {
+  latitude: number;
+  longitude: number;
+  radius?: number;
+}) {
+  console.log("[Amadeus] Getting Tours and Activities:", params);
+  
+  try {
+    const token = await getAccessToken();
+
+    const queryParams: any = {
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius || 5, // Default 5km radius
+    };
+
+    const response = await axios.get(
+      `${AMADEUS_BASE_URL}/v1/shopping/activities`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: queryParams,
+      }
+    );
+
+    console.log(`[Amadeus] Found ${response.data.data?.length || 0} activities`);
+    return response.data;
+  } catch (error: any) {
+    console.error("[Amadeus] Activities search error:", {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+    });
+    throw new Error(
+      error.response?.data?.errors?.[0]?.detail || "Failed to get tours and activities"
+    );
   }
 }

@@ -55,6 +55,8 @@ export const destinations = pgTable("destinations", {
   imageUrl: text("image_url").notNull(),
   category: text("category").notNull(), // e.g., "beach", "mountain", "city", "cultural", "adventure"
   featured: boolean("featured").default(false),
+  latitude: text("latitude"), // Latitude coordinate for Amadeus API calls
+  longitude: text("longitude"), // Longitude coordinate for Amadeus API calls
   visaRequirements: text("visa_requirements"), // Visa information for travelers
   travelDocuments: text("travel_documents"), // Required documents and entry requirements
   climate: text("climate"), // Climate type and general weather patterns
