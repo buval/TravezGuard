@@ -142,7 +142,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(results);
     } catch (error: any) {
       console.error("POI search error:", error);
-      res.status(500).json({ message: error.message || "Failed to get points of interest" });
+      
+      // Handle decommissioned API gracefully (410 Gone)
+      if (error.status === 410 || error.message?.includes("decommissioned")) {
+        return res.json({ data: [], meta: { count: 0 } });
+      }
+      
+      // Return empty result for other errors to prevent UI from breaking
+      res.json({ data: [], meta: { count: 0 } });
     }
   });
 
@@ -168,7 +175,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(results);
     } catch (error: any) {
       console.error("Activities search error:", error);
-      res.status(500).json({ message: error.message || "Failed to get tours and activities" });
+      
+      // Handle decommissioned API or other errors gracefully
+      if (error.status === 410 || error.message?.includes("decommissioned")) {
+        return res.json({ data: [], meta: { count: 0 } });
+      }
+      
+      // Return empty result for other errors to prevent UI from breaking
+      res.json({ data: [], meta: { count: 0 } });
     }
   });
 
