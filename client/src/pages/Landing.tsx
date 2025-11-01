@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,13 +14,14 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   // Redirect authenticated users to home
-  if (isAuthenticated) {
-    setLocation("/home");
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLocation("/home");
+    }
+  }, [isAuthenticated, setLocation]);
 
   // Fetch featured destinations from API
-  const { data: featuredDestinations, isLoading } = useQuery<Destination[]>({
+  const { data: featuredDestinations, isLoading} = useQuery<Destination[]>({
     queryKey: ["/api/destinations/featured"],
   });
 

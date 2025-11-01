@@ -1,4 +1,4 @@
-import { Home, Compass, Shield, Map, User } from "lucide-react";
+import { Home, Compass, Shield, Plane, Map, User } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export function MobileNav() {
@@ -8,6 +8,7 @@ export function MobileNav() {
     { icon: Home, label: "Home", path: "/" },
     { icon: Compass, label: "Explore", path: "/explore" },
     { icon: Shield, label: "Borders", path: "/borders" },
+    { icon: Plane, label: "Flights", path: "/flights" },
     { icon: Map, label: "Trips", path: "/trips" },
     { icon: User, label: "Profile", path: "/profile" },
   ];

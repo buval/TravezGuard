@@ -10,6 +10,7 @@ import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
 import Explore from "@/pages/Explore";
 import Borders from "@/pages/Borders";
+import Flights from "@/pages/Flights";
 import Trips from "@/pages/Trips";
 import TripDetails from "@/pages/TripDetails";
 import Itinerary from "@/pages/Itinerary";
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/home" component={Home} />
       <Route path="/explore" component={Explore} />
       <Route path="/borders" component={Borders} />
+      <Route path="/flights" component={Flights} />
       <Route path="/trips" component={Trips} />
       <Route path="/trips/new" component={NewTrip} />
       <Route path="/trips/:id" component={TripDetails} />

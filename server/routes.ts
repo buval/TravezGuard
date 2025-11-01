@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { searchFlights, searchAirports, getFlightInspiration } from "./amadeus";
 
 // Auth middleware
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -51,6 +52,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching destination:", error);
       res.status(500).json({ message: "Failed to fetch destination" });
+    }
+  });
+
+  // Flight routes (public - accessible to guests and authenticated users)
+  app.get("/api/flights/search", async (req, res) => {
+    try {
+      const { origin, destination, departureDate, returnDate, adults } = req.query;
+
+      if (!origin || !destination || !departureDate || !adults) {
+        return res.status(400).json({ 
+          message: "Missing required parameters: origin, destination, departureDate, adults" 
+        });
+      }
+
+      const results = await searchFlights({
+        originLocationCode: origin as string,
+        destinationLocationCode: destination as string,
+        departureDate: departureDate as string,
+        returnDate: returnDate as string | undefined,
+        adults: parseInt(adults as string),
+        max: 20,
+      });
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("Flight search error:", error);
+      res.status(500).json({ message: error.message || "Failed to search flights" });
+    }
+  });
+
+  app.get("/api/airports/search", async (req, res) => {
+    try {
+      const { keyword } = req.query;
+
+      if (!keyword || typeof keyword !== "string") {
+        return res.status(400).json({ message: "Missing required parameter: keyword" });
+      }
+
+      const results = await searchAirports(keyword);
+      res.json(results);
+    } catch (error: any) {
+      console.error("Airport search error:", error);
+      res.status(500).json({ message: error.message || "Failed to search airports" });
+    }
+  });
+
+  app.get("/api/flights/inspiration", async (req, res) => {
+    try {
+      const { origin, maxPrice, departureDate } = req.query;
+
+      if (!origin || typeof origin !== "string") {
+        return res.status(400).json({ message: "Missing required parameter: origin" });
+      }
+
+      const results = await getFlightInspiration({
+        origin,
+        maxPrice: maxPrice ? parseInt(maxPrice as string) : undefined,
+        departureDate: departureDate as string | undefined,
+      });
+
+      res.json(results);
+    } catch (error: any) {
+      console.error("Flight inspiration error:", error);
+      res.status(500).json({ message: error.message || "Failed to get flight inspiration" });
     }
   });
 
