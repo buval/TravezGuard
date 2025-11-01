@@ -63,6 +63,7 @@ Preferred communication style: Simple, everyday language.
   - Itinerary: `/api/itinerary-items` (create/delete)
   - Expenses: `/api/expenses` (POST), `/api/expenses/:id` (PATCH/DELETE), `/api/trips/:id/expenses` (GET)
   - Borders: Public page (no backend routes, uses external Passport Index API)
+  - Flights: `/api/flights/search`, `/api/airports/search`, `/api/flights/inspiration` (public routes, powered by Amadeus API)
 
 **Business Logic Layer**
 - Storage abstraction interface (`IStorage`) defined in `server/storage.ts`
@@ -123,6 +124,12 @@ Preferred communication style: Simple, everyday language.
   - Color-coded visa status badges (green=visa-free, blue=visa-on-arrival/eVisa/eTA, yellow=visa-required, red=not-admitted)
   - Stay duration information when applicable
   - Links to official Passport Index source
+- **Flights** (`/flights`): Real-time flight search powered by Amadeus API
+  - Search flights between any airports using 3-letter IATA codes (e.g., JFK, LAX, LHR)
+  - One-way or round-trip options
+  - Passenger count configuration (1-9 adults)
+  - Results display flight details, duration, stops, prices in USD
+  - Accessible to both guest users and authenticated users
 
 **Authenticated Pages** (require login):
 - **My Trips** (`/trips`): View and manage created trips
@@ -131,8 +138,8 @@ Preferred communication style: Simple, everyday language.
 - **Profile/Menu**: User profile and settings
 
 **Mobile Navigation**:
-- Bottom navigation bar with 5 items: Home, Explore, Trips (auth required), Borders, Profile/Menu
-- Icons: Home, Search, MapPin, Shield, User
+- Bottom navigation bar with 6 items: Home, Explore, Borders, Flights, Trips (auth required), Profile/Menu
+- Icons: Home, Compass, Shield, Plane, Map, User
 - Highlights active page
 
 ### Borders & Visa Feature
@@ -184,6 +191,14 @@ Preferred communication style: Simple, everyday language.
   - Free, no authentication required
   - Sources official government data
   - Used by Borders page for real-time visa lookups
+- **Amadeus API**: Flight and travel information API
+  - Base URL: `https://test.api.amadeus.com` (test environment)
+  - OAuth 2.0 client credentials flow for authentication
+  - 30-minute token expiry with automatic refresh
+  - Features: Flight search (500+ airlines), airport autocomplete, flight inspiration
+  - Credentials stored in `AMADEUS_API_KEY` and `AMADEUS_API_SECRET` environment variables
+  - Implementation in `server/amadeus.ts` with token caching and error handling
+  - Used by Flights page for real-time flight search (accessible to guests and authenticated users)
 
 **Development Tools**
 - **Replit Vite Plugins**: Runtime error overlay, cartographer (code navigation), and dev banner for Replit environment
