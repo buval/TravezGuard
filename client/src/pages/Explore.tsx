@@ -30,13 +30,13 @@ export default function Explore() {
 
   // Fetch POIs for selected destination
   const { data: pois, isLoading: poisLoading } = useQuery<any>({
-    queryKey: ["/api/destinations", selectedDestination?.id, "pois"],
+    queryKey: [`/api/destinations/${selectedDestination?.id}/pois`],
     enabled: !!selectedDestination,
   });
 
   // Fetch Activities for selected destination
   const { data: activities, isLoading: activitiesLoading } = useQuery<any>({
-    queryKey: ["/api/destinations", selectedDestination?.id, "activities"],
+    queryKey: [`/api/destinations/${selectedDestination?.id}/activities`],
     enabled: !!selectedDestination,
   });
 
