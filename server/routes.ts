@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth } from "./auth";
+import { setupAuth } from "./replitAuth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { searchFlights, searchAirports, getFlightInspiration, getPointsOfInterest, getToursAndActivities, searchCities } from "./amadeus";

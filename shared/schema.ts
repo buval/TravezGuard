@@ -25,14 +25,15 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table - Username/Password Auth
+// User storage table - Supports both Replit Auth (OIDC) and Username/Password
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: varchar("username").notNull().unique(),
-  password: varchar("password").notNull(), // Hashed password
+  username: varchar("username").unique(), // Optional for Replit Auth users
+  password: varchar("password"), // Hashed password (only for username/password users)
   email: varchar("email"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"), // For Replit Auth
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
