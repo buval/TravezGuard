@@ -16,11 +16,12 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { getAirlineName, getAircraftInfo, getBaggageInfo } from "@/lib/airlineData";
+import type { FlightOffer } from "@shared/schema";
 
 interface FlightDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  flight: any;
+  flight: FlightOffer | null;
 }
 
 export function FlightDetailsDialog({ open, onOpenChange, flight }: FlightDetailsDialogProps) {
@@ -54,9 +55,10 @@ export function FlightDetailsDialog({ open, onOpenChange, flight }: FlightDetail
     return (hours + minutes).trim();
   };
 
-  // Determine fare class (simulated - in real app would come from API)
+  // Determine fare class based on price (lower prices = Basic, higher = Standard)
   const fareClass = "Economy";
-  const fareType = Math.random() > 0.5 ? "Standard" : "Basic";
+  const priceValue = parseFloat(flight.price.total);
+  const fareType = priceValue > 300 ? "Standard" : "Basic";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -233,14 +235,26 @@ export function FlightDetailsDialog({ open, onOpenChange, flight }: FlightDetail
                     </div>
 
                     {/* Layover info */}
-                    {idx < outbound.segments.length - 1 && (
-                      <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
-                        <p className="text-muted-foreground">
-                          Layover at {segment.arrival.iataCode} • 
-                          Connection time: ~{Math.floor(Math.random() * 120) + 45} minutes
-                        </p>
-                      </div>
-                    )}
+                    {idx < outbound.segments.length - 1 && (() => {
+                      const nextSegment = outbound.segments[idx + 1];
+                      const arrivalTime = new Date(segment.arrival.at);
+                      const nextDepartureTime = new Date(nextSegment.departure.at);
+                      const layoverMinutes = Math.round((nextDepartureTime.getTime() - arrivalTime.getTime()) / (1000 * 60));
+                      const layoverHours = Math.floor(layoverMinutes / 60);
+                      const remainingMinutes = layoverMinutes % 60;
+                      const layoverDisplay = layoverHours > 0 
+                        ? `${layoverHours}h ${remainingMinutes}m`
+                        : `${layoverMinutes}m`;
+
+                      return (
+                        <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
+                          <p className="text-muted-foreground">
+                            Layover at {segment.arrival.iataCode} • 
+                            Connection time: {layoverDisplay}
+                          </p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })}

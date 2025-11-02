@@ -171,3 +171,38 @@ export const expensesRelations = relations(expenses, ({ one }) => ({
     references: [trips.id],
   }),
 }));
+
+// Amadeus API Flight Types
+export interface FlightSegment {
+  departure: {
+    iataCode: string;
+    at: string;
+  };
+  arrival: {
+    iataCode: string;
+    at: string;
+  };
+  carrierCode: string;
+  number: string;
+  duration: string;
+  aircraft?: {
+    code?: string;
+  };
+}
+
+export interface FlightItinerary {
+  duration: string;
+  segments: FlightSegment[];
+}
+
+export interface FlightPrice {
+  total: string;
+  currency: string;
+}
+
+export interface FlightOffer {
+  id: string;
+  price: FlightPrice;
+  itineraries: FlightItinerary[];
+  validatingAirlineCodes: string[];
+}

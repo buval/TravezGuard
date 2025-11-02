@@ -12,35 +12,8 @@ import { AirportInfoDialog } from "@/components/AirportInfoDialog";
 import { Plane, Search, Clock, Info, ArrowRight, Briefcase, ShoppingBag } from "lucide-react";
 import { format } from "date-fns";
 import { getAirlineName, getAircraftInfo, getBaggageInfo } from "@/lib/airlineData";
+import type { FlightOffer } from "@shared/schema";
 import logoUrl from "@assets/logo_1761679001485.png";
-
-interface FlightOffer {
-  id: string;
-  price: {
-    total: string;
-    currency: string;
-  };
-  itineraries: Array<{
-    duration: string;
-    segments: Array<{
-      departure: {
-        iataCode: string;
-        at: string;
-      };
-      arrival: {
-        iataCode: string;
-        at: string;
-      };
-      carrierCode: string;
-      number: string;
-      duration: string;
-      aircraft?: {
-        code?: string;
-      };
-    }>;
-  }>;
-  validatingAirlineCodes: string[];
-}
 
 export default function Flights() {
   const [originCode, setOriginCode] = useState("");
@@ -51,12 +24,12 @@ export default function Flights() {
   const [returnDate, setReturnDate] = useState("");
   const [adults, setAdults] = useState("1");
   const [searchParams, setSearchParams] = useState<any>(null);
-  const [selectedFlight, setSelectedFlight] = useState<any>(null);
+  const [selectedFlight, setSelectedFlight] = useState<FlightOffer | null>(null);
   const [flightDetailsOpen, setFlightDetailsOpen] = useState(false);
   const [airportInfoCode, setAirportInfoCode] = useState("");
   const [airportInfoOpen, setAirportInfoOpen] = useState(false);
 
-  const { data: flightResults, isLoading, error } = useQuery<any>({
+  const { data: flightResults, isLoading, error } = useQuery<{ data: FlightOffer[] }>({
     queryKey: [searchParams],
     enabled: !!searchParams,
   });
