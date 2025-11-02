@@ -56,6 +56,93 @@ async function getAccessToken(): Promise<string> {
   }
 }
 
+// Helper function to diversify flight results
+function diversifyFlightResults(flights: any[], maxResults: number = 15): any[] {
+  if (!flights || flights.length === 0) return flights;
+
+  // Group flights by number of stops
+  const directFlights = flights.filter(f => {
+    const segments = f.itineraries?.[0]?.segments || [];
+    return segments.length === 1;
+  });
+  
+  const oneStopFlights = flights.filter(f => {
+    const segments = f.itineraries?.[0]?.segments || [];
+    return segments.length === 2;
+  });
+  
+  const twoStopFlights = flights.filter(f => {
+    const segments = f.itineraries?.[0]?.segments || [];
+    return segments.length >= 3;
+  });
+
+  console.log(`[Amadeus] Flight distribution - Direct: ${directFlights.length}, 1-Stop: ${oneStopFlights.length}, 2+ Stops: ${twoStopFlights.length}`);
+
+  // Group by departure time (morning, afternoon, evening, night)
+  const groupByDepartureTime = (flightList: any[]) => {
+    return flightList.reduce((acc: any, flight) => {
+      const departureTime = flight.itineraries?.[0]?.segments?.[0]?.departure?.at;
+      if (!departureTime) return acc;
+      
+      const hour = parseInt(departureTime.split('T')[1].substring(0, 2));
+      let timeSlot: string;
+      
+      if (hour >= 6 && hour < 12) timeSlot = 'morning';
+      else if (hour >= 12 && hour < 18) timeSlot = 'afternoon';
+      else if (hour >= 18 && hour < 22) timeSlot = 'evening';
+      else timeSlot = 'night';
+      
+      if (!acc[timeSlot]) acc[timeSlot] = [];
+      acc[timeSlot].push(flight);
+      return acc;
+    }, {});
+  };
+
+  // Diversify each category
+  const diversify = (flightList: any[], count: number) => {
+    const byTime = groupByDepartureTime(flightList);
+    const timeSlots = ['morning', 'afternoon', 'evening', 'night'];
+    const result: any[] = [];
+    
+    // Round-robin selection from each time slot
+    let slotIndex = 0;
+    while (result.length < count && result.length < flightList.length) {
+      const slot = timeSlots[slotIndex % timeSlots.length];
+      if (byTime[slot] && byTime[slot].length > 0) {
+        result.push(byTime[slot].shift());
+      }
+      slotIndex++;
+      
+      // Break if all slots are empty
+      if (timeSlots.every(s => !byTime[s] || byTime[s].length === 0)) break;
+    }
+    
+    return result;
+  };
+
+  // Determine how many from each category
+  const directCount = Math.min(Math.ceil(maxResults * 0.4), directFlights.length);
+  const oneStopCount = Math.min(Math.ceil(maxResults * 0.4), oneStopFlights.length);
+  const twoStopCount = Math.min(maxResults - directCount - oneStopCount, twoStopFlights.length);
+
+  // Select diverse flights from each category
+  const selectedDirect = diversify(directFlights, directCount);
+  const selectedOneStop = diversify(oneStopFlights, oneStopCount);
+  const selectedTwoStop = diversify(twoStopFlights, twoStopCount);
+
+  // Combine and sort by price
+  const diverseResults = [...selectedDirect, ...selectedOneStop, ...selectedTwoStop]
+    .sort((a, b) => {
+      const priceA = parseFloat(a.price?.total || '0');
+      const priceB = parseFloat(b.price?.total || '0');
+      return priceA - priceB;
+    });
+
+  console.log(`[Amadeus] Diversified to ${diverseResults.length} flights (Direct: ${selectedDirect.length}, 1-Stop: ${selectedOneStop.length}, 2+ Stops: ${selectedTwoStop.length})`);
+  
+  return diverseResults.slice(0, maxResults);
+}
+
 // Search for flight offers
 export async function searchFlights(params: {
   originLocationCode: string;
@@ -75,7 +162,7 @@ export async function searchFlights(params: {
       destinationLocationCode: params.destinationLocationCode,
       departureDate: params.departureDate,
       adults: params.adults,
-      max: params.max || 10,
+      max: 100,
       currencyCode: "USD",
     };
 
@@ -95,7 +182,15 @@ export async function searchFlights(params: {
       }
     );
 
-    console.log(`[Amadeus] Found ${response.data.data?.length || 0} flights`);
+    console.log(`[Amadeus] Found ${response.data.data?.length || 0} flights from API`);
+    
+    // Diversify the results to ensure mix of direct, 1-stop, and 2-stop flights
+    // with varied departure times
+    if (response.data.data && response.data.data.length > 0) {
+      const maxResults = params.max || 15;
+      response.data.data = diversifyFlightResults(response.data.data, maxResults);
+    }
+    
     return response.data;
   } catch (error: any) {
     console.error("[Amadeus] Flight search error:", {
