@@ -82,7 +82,7 @@ Preferred communication style: Simple, everyday language.
 - **Migrations**: Drizzle Kit manages schema changes, with Zod for runtime validation.
 
 ### Authentication & Authorization
-- **Authentication**: Replit Auth (OpenID Connect) integrated via Passport.js, using `express-session` and a PostgreSQL session store.
+- **Authentication**: Custom username/password authentication integrated via Passport.js with LocalStrategy, using `express-session` and a PostgreSQL session store. Passwords are securely hashed using scrypt.
 - **Authorization**: Session-based, with `isAuthenticated` middleware protecting routes and user data scoped to the authenticated user.
 
 ### Application Features
