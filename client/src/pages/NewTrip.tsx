@@ -75,14 +75,13 @@ export default function NewTrip() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center gap-3 max-w-4xl">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-center max-w-4xl relative">
           <Link href="/">
-            <Button size="icon" variant="ghost" className="rounded-full" data-testid="button-back">
+            <Button size="icon" variant="ghost" className="rounded-full absolute left-4" data-testid="button-back">
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </Link>
           <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
-          <h1 className="text-lg font-semibold">Create New Trip</h1>
         </div>
       </header>
 

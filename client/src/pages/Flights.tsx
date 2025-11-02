@@ -94,12 +94,8 @@ export default function Flights() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center max-w-7xl">
-          <div className="flex items-center gap-3">
-            <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
-            <Plane className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold" data-testid="text-page-title">Flight Search</h1>
-          </div>
+        <div className="container mx-auto px-4 h-16 flex items-center justify-center max-w-7xl">
+          <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
         </div>
       </header>
 
