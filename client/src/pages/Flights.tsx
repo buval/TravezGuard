@@ -94,10 +94,10 @@ export default function Flights() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
-          <div className="w-24"></div>
+        <div className="container mx-auto px-4 h-16 flex items-center max-w-7xl">
+          <div className="flex-1"></div>
           <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
-          <div className="w-24"></div>
+          <div className="flex-1"></div>
         </div>
       </header>
 

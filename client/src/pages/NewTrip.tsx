@@ -75,14 +75,16 @@ export default function NewTrip() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-4xl">
-          <Link href="/">
-            <Button size="icon" variant="ghost" className="rounded-full" data-testid="button-back">
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-          </Link>
+        <div className="container mx-auto px-4 h-16 flex items-center max-w-4xl">
+          <div className="flex-1">
+            <Link href="/">
+              <Button size="icon" variant="ghost" className="rounded-full" data-testid="button-back">
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
           <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
-          <div className="w-10"></div>
+          <div className="flex-1"></div>
         </div>
       </header>
 
