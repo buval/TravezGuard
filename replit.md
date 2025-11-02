@@ -5,6 +5,11 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 
 ## Recent Changes (November 2025)
 
+### Destination Dialog Layout Improvements (November 2, 2025)
+- **Image Layout Fix**: Changed destination dialog image from 16:9 aspect ratio to fixed 192px height to prevent content from being hidden when Amadeus activities load. This ensures activities are always visible without excessive scrolling.
+- **POI Integration Removal**: Removed decommissioned Amadeus POI (Points of Interest) API that was returning HTTP 410 Gone errors. Frontend now focuses solely on Tours & Activities which continue to work properly.
+- **Cleaner Dialog**: Streamlined destination details with better vertical space management for activity content.
+
 ### Production Database Seeding Fix (November 1, 2025)
 - **Issue Fixed**: Production database only had 8 destinations while development had 20
 - **Solution**: Updated `seedDatabase()` function to intelligently detect missing destinations
@@ -52,7 +57,7 @@ Added 12 stunning new destinations with beautiful AI-generated images:
   - Amadeus destinations: Marked with "Explore" badge and gradient background
 - **Debounced Search**: 300ms debounce prevents excessive API calls while typing
 - **Dual Dialogs**:
-  - Database destinations: Full destination details with climate, visa requirements, POIs, and activities
+  - Database destinations: Full destination details with climate, visa requirements, and tours & activities
   - Amadeus cities: Simplified dialog with city information, coordinates, IATA code, and tours & activities (if available)
 - **Seamless Experience**: Users can discover destinations beyond the curated collection without needing to store them in the database
 - **Smart Error Handling**: If Amadeus API fails, search continues with local results only
