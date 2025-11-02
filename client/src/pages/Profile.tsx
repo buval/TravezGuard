@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MobileNav } from "@/components/MobileNav";
-import { Mail, LogOut } from "lucide-react";
+import { Mail, LogOut, FileText, Download } from "lucide-react";
 import { Link } from "wouter";
 import logoUrl from "@assets/logo_1761679001485.png";
 
@@ -22,6 +22,10 @@ export default function Profile() {
     if (user?.firstName) return user.firstName;
     if (user?.lastName) return user.lastName;
     return "Traveler";
+  };
+
+  const downloadInvestorPitch = () => {
+    window.open('/api/investor-pitch', '_blank');
   };
 
   if (!isAuthenticated) {
@@ -108,10 +112,21 @@ export default function Profile() {
         {/* About Section */}
         <Card className="p-6 mt-6">
           <h3 className="text-lg font-semibold mb-2">About Travez</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mb-4">
             Plan your dream journey with detailed itineraries, discover amazing destinations, 
             and make unforgettable memories. Version 1.0.0
           </p>
+          
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-3 rounded-full mt-4"
+            onClick={downloadInvestorPitch}
+            data-testid="button-download-investor-pitch"
+          >
+            <FileText className="w-4 h-4" />
+            <span className="flex-1 text-left">Download Investor Pitch (PDF)</span>
+            <Download className="w-4 h-4" />
+          </Button>
         </Card>
       </main>
 
