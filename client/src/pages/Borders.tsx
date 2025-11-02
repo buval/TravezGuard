@@ -275,12 +275,12 @@ export default function Borders() {
                         <span className="text-sm">Checking requirements...</span>
                       </div>
                     ) : failedDestinations.has(destination.id) ? (
-                      <div className="flex items-start gap-2 text-destructive">
+                      <div className="flex items-start gap-2 text-muted-foreground">
                         <AlertCircle className="w-4 h-4 mt-0.5" />
                         <div className="text-sm">
-                          <p className="font-medium">Failed to load</p>
+                          <p className="font-medium">Information unavailable</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Check your connection and refresh
+                            Visa data not available for this destination
                           </p>
                         </div>
                       </div>
