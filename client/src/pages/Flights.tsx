@@ -4,10 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { MobileNav } from "@/components/MobileNav";
 import { AirportSearch } from "@/components/AirportSearch";
-import { Plane, Search, Clock, Calendar as CalendarIcon, Users, ArrowRight } from "lucide-react";
+import { FlightDetailsDialog } from "@/components/FlightDetailsDialog";
+import { AirportInfoDialog } from "@/components/AirportInfoDialog";
+import { Plane, Search, Clock, Info, ArrowRight, Briefcase, ShoppingBag } from "lucide-react";
 import { format } from "date-fns";
+import { getAirlineName, getAircraftInfo, getBaggageInfo } from "@/lib/airlineData";
 import logoUrl from "@assets/logo_1761679001485.png";
 
 interface FlightOffer {
@@ -30,6 +34,9 @@ interface FlightOffer {
       carrierCode: string;
       number: string;
       duration: string;
+      aircraft?: {
+        code?: string;
+      };
     }>;
   }>;
   validatingAirlineCodes: string[];
@@ -44,6 +51,10 @@ export default function Flights() {
   const [returnDate, setReturnDate] = useState("");
   const [adults, setAdults] = useState("1");
   const [searchParams, setSearchParams] = useState<any>(null);
+  const [selectedFlight, setSelectedFlight] = useState<any>(null);
+  const [flightDetailsOpen, setFlightDetailsOpen] = useState(false);
+  const [airportInfoCode, setAirportInfoCode] = useState("");
+  const [airportInfoOpen, setAirportInfoOpen] = useState(false);
 
   const { data: flightResults, isLoading, error } = useQuery<any>({
     queryKey: [searchParams],
@@ -247,81 +258,134 @@ export default function Flights() {
                 const outbound = offer.itineraries[0];
                 const firstSegment = outbound.segments[0];
                 const lastSegment = outbound.segments[outbound.segments.length - 1];
+                const airlineCode = offer.validatingAirlineCodes[0];
+                const airlineName = getAirlineName(airlineCode);
+                const aircraftInfo = getAircraftInfo(firstSegment.aircraft?.code);
+                const baggageInfo = getBaggageInfo(airlineCode);
 
                 return (
                   <Card 
                     key={offer.id} 
-                    className="hover-elevate cursor-pointer"
+                    className="hover-elevate"
                     data-testid={`card-flight-${offer.id}`}
                   >
                     <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        {/* Flight Info */}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-3">
-                            <div className="text-center">
-                              <div className="text-2xl font-bold">
-                                {formatTime(firstSegment.departure.at)}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {firstSegment.departure.iataCode}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {formatDate(firstSegment.departure.at)}
-                              </div>
-                            </div>
-
-                            <div className="flex-1 text-center">
-                              <div className="flex items-center justify-center gap-2 mb-1">
-                                <div className="h-px bg-border flex-1" />
-                                <Plane className="w-4 h-4 text-muted-foreground" />
-                                <div className="h-px bg-border flex-1" />
-                              </div>
-                              <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {formatDuration(outbound.duration)}
-                              </div>
-                              {outbound.segments.length > 1 && (
-                                <div className="text-xs text-amber-600 mt-1">
-                                  {outbound.segments.length - 1} stop{outbound.segments.length > 2 ? "s" : ""}
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="text-center">
-                              <div className="text-2xl font-bold">
-                                {formatTime(lastSegment.arrival.at)}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {lastSegment.arrival.iataCode}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {formatDate(lastSegment.arrival.at)}
-                              </div>
+                      <div className="flex flex-col gap-4">
+                        {/* Airline and Aircraft Info */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Plane className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-semibold">{airlineName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {aircraftInfo.name} • {aircraftInfo.category}
+                              </p>
                             </div>
                           </div>
-
-                          <div className="text-sm text-muted-foreground">
-                            {offer.validatingAirlineCodes.join(", ")}
+                          <div className="flex gap-2">
+                            {baggageInfo.checked.included > 0 && (
+                              <Badge variant="secondary" className="gap-1">
+                                <Briefcase className="w-3 h-3" />
+                                {baggageInfo.checked.included} bag{baggageInfo.checked.included > 1 ? "s" : ""}
+                              </Badge>
+                            )}
+                            {baggageInfo.carryOn.included && (
+                              <Badge variant="secondary" className="gap-1">
+                                <ShoppingBag className="w-3 h-3" />
+                                Carry-on
+                              </Badge>
+                            )}
                           </div>
                         </div>
 
-                        {/* Price */}
-                        <div className="text-right md:text-center">
-                          <div className="text-3xl font-bold text-primary">
-                            ${offer.price.total}
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          {/* Flight Times */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-4">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold">
+                                  {formatTime(firstSegment.departure.at)}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-sm text-muted-foreground p-0 h-auto hover:text-primary"
+                                  onClick={() => {
+                                    setAirportInfoCode(firstSegment.departure.iataCode);
+                                    setAirportInfoOpen(true);
+                                  }}
+                                  data-testid={`button-airport-info-${firstSegment.departure.iataCode}`}
+                                >
+                                  {firstSegment.departure.iataCode}
+                                  <Info className="w-3 h-3 ml-1" />
+                                </Button>
+                                <div className="text-xs text-muted-foreground">
+                                  {formatDate(firstSegment.departure.at)}
+                                </div>
+                              </div>
+
+                              <div className="flex-1 text-center">
+                                <div className="flex items-center justify-center gap-2 mb-1">
+                                  <div className="h-px bg-border flex-1" />
+                                  <Plane className="w-4 h-4 text-muted-foreground" />
+                                  <div className="h-px bg-border flex-1" />
+                                </div>
+                                <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {formatDuration(outbound.duration)}
+                                </div>
+                                {outbound.segments.length > 1 && (
+                                  <div className="text-xs text-amber-600 mt-1">
+                                    {outbound.segments.length - 1} stop{outbound.segments.length > 2 ? "s" : ""}
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="text-center">
+                                <div className="text-2xl font-bold">
+                                  {formatTime(lastSegment.arrival.at)}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-sm text-muted-foreground p-0 h-auto hover:text-primary"
+                                  onClick={() => {
+                                    setAirportInfoCode(lastSegment.arrival.iataCode);
+                                    setAirportInfoOpen(true);
+                                  }}
+                                  data-testid={`button-airport-info-${lastSegment.arrival.iataCode}`}
+                                >
+                                  {lastSegment.arrival.iataCode}
+                                  <Info className="w-3 h-3 ml-1" />
+                                </Button>
+                                <div className="text-xs text-muted-foreground">
+                                  {formatDate(lastSegment.arrival.at)}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-muted-foreground">
-                            {offer.price.currency}
+
+                          {/* Price and Action */}
+                          <div className="text-right md:text-center border-t md:border-t-0 md:border-l pt-4 md:pt-0 md:pl-6">
+                            <div className="text-3xl font-bold text-primary">
+                              ${offer.price.total}
+                            </div>
+                            <div className="text-sm text-muted-foreground mb-2">
+                              {offer.price.currency}
+                            </div>
+                            <Button 
+                              size="sm" 
+                              className="gap-2 w-full md:w-auto"
+                              onClick={() => {
+                                setSelectedFlight(offer);
+                                setFlightDetailsOpen(true);
+                              }}
+                              data-testid={`button-select-flight-${offer.id}`}
+                            >
+                              View Details
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
                           </div>
-                          <Button 
-                            size="sm" 
-                            className="mt-2 gap-2"
-                            data-testid={`button-select-flight-${offer.id}`}
-                          >
-                            Select
-                            <ArrowRight className="w-4 h-4" />
-                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -347,6 +411,20 @@ export default function Flights() {
       </main>
 
       <MobileNav />
+
+      {/* Flight Details Dialog */}
+      <FlightDetailsDialog
+        open={flightDetailsOpen}
+        onOpenChange={setFlightDetailsOpen}
+        flight={selectedFlight}
+      />
+
+      {/* Airport Info Dialog */}
+      <AirportInfoDialog
+        open={airportInfoOpen}
+        onOpenChange={setAirportInfoOpen}
+        airportCode={airportInfoCode}
+      />
     </div>
   );
 }
