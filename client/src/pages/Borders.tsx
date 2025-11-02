@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { MobileNav } from "@/components/MobileNav";
 import { Shield, MapPin, Clock, ExternalLink, Loader2, AlertCircle } from "lucide-react";
 import type { Destination } from "@shared/schema";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 // ISO country codes for common passports
 const PASSPORT_COUNTRIES = [
@@ -163,10 +164,13 @@ export default function Borders() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
-          <h1 className="text-xl font-bold flex items-center gap-2" data-testid="text-page-title">
-            <Shield className="w-5 h-5" />
-            Borders & Visa
-          </h1>
+          <div className="flex items-center gap-3">
+            <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
+            <h1 className="text-xl font-bold flex items-center gap-2" data-testid="text-page-title">
+              <Shield className="w-5 h-5" />
+              Borders & Visa
+            </h1>
+          </div>
           {!isAuthenticated && (
             <Button
               size="sm"

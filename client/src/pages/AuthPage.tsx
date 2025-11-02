@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plane, MapPin, Calendar, DollarSign } from "lucide-react";
+import { MapPin, Calendar, DollarSign } from "lucide-react";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -68,9 +69,8 @@ export default function AuthPage() {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Plane className="w-8 h-8 text-primary" />
-              <h1 className="text-3xl font-bold">Travez</h1>
+            <div className="flex items-center justify-center mb-2">
+              <img src={logoUrl} alt="Travez" className="h-12" data-testid="img-logo" />
             </div>
             <p className="text-muted-foreground">
               Plan your perfect trip

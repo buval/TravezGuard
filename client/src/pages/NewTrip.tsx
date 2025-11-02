@@ -14,6 +14,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import type { Destination, InsertTrip } from "@shared/schema";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 export default function NewTrip() {
   const [, setLocation] = useLocation();
@@ -80,6 +81,7 @@ export default function NewTrip() {
               <ChevronLeft className="w-5 h-5" />
             </Button>
           </Link>
+          <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
           <h1 className="text-lg font-semibold">Create New Trip</h1>
         </div>
       </header>

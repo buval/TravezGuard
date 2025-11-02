@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MobileNav } from "@/components/MobileNav";
 import { Mail, LogOut } from "lucide-react";
 import { Link } from "wouter";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 export default function Profile() {
   const { user, isAuthenticated, logoutMutation } = useAuth();
@@ -50,7 +51,10 @@ export default function Profile() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center max-w-4xl">
-          <h1 className="text-xl font-bold" data-testid="text-page-title">Profile</h1>
+          <div className="flex items-center gap-3">
+            <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
+            <h1 className="text-xl font-bold" data-testid="text-page-title">Profile</h1>
+          </div>
         </div>
       </header>
 

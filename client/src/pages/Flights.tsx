@@ -8,6 +8,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { AirportSearch } from "@/components/AirportSearch";
 import { Plane, Search, Clock, Calendar as CalendarIcon, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 interface FlightOffer {
   id: string;
@@ -94,8 +95,11 @@ export default function Flights() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center max-w-7xl">
-          <Plane className="w-6 h-6 text-primary mr-3" />
-          <h1 className="text-xl font-bold" data-testid="text-page-title">Flight Search</h1>
+          <div className="flex items-center gap-3">
+            <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
+            <Plane className="w-6 h-6 text-primary" />
+            <h1 className="text-xl font-bold" data-testid="text-page-title">Flight Search</h1>
+          </div>
         </div>
       </header>
 

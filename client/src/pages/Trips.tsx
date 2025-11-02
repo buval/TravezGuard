@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import type { Trip, Destination } from "@shared/schema";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 export default function Trips() {
   const { isAuthenticated } = useAuth();
@@ -87,7 +88,10 @@ export default function Trips() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
-          <h1 className="text-xl font-bold" data-testid="text-page-title">My Trips</h1>
+          <div className="flex items-center gap-3">
+            <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
+            <h1 className="text-xl font-bold" data-testid="text-page-title">My Trips</h1>
+          </div>
           
           <Link href="/trips/new">
             <Button size="sm" className="rounded-full gap-2" data-testid="button-create-trip">

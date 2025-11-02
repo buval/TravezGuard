@@ -9,6 +9,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { MapPin, Shield, Search, X, Sun, Calendar, Activity, ExternalLink, Star, Globe } from "lucide-react";
 import type { Destination } from "@shared/schema";
+import logoUrl from "@assets/logo_1761679001485.png";
 
 // Extended type for search results
 type DestinationSearchResult = (Destination & { source: "database" }) | {
@@ -128,7 +129,7 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
-          <h1 className="text-xl font-bold" data-testid="text-page-title">Travez</h1>
+          <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
           
           {!isAuthenticated && (
             <Button
