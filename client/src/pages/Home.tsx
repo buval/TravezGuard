@@ -342,7 +342,7 @@ export default function Home() {
                 const dest = selectedDestination as Destination;
                 return (
                   <>
-                    <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6">
+                    <div className="aspect-[16/9] overflow-hidden rounded-lg mb-6 relative">
                       <img
                         src={dest.imageUrl}
                         alt={dest.name}
@@ -350,9 +350,9 @@ export default function Home() {
                       />
                     </div>
                     
-                    <DialogHeader>
+                    <DialogHeader className="space-y-3">
                       <DialogTitle className="text-2xl">{dest.name}, {dest.country}</DialogTitle>
-                      <DialogDescription className="text-base leading-relaxed pt-2">
+                      <DialogDescription className="text-base leading-relaxed">
                         {dest.description}
                       </DialogDescription>
                     </DialogHeader>
@@ -540,7 +540,7 @@ export default function Home() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           {selectedAmadeusCity && (
             <>
-              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6">
+              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-6 relative">
                 {selectedAmadeusCity.imageUrl ? (
                   <img
                     src={selectedAmadeusCity.imageUrl}
@@ -560,7 +560,7 @@ export default function Home() {
                 )}
               </div>
               
-              <DialogHeader>
+              <DialogHeader className="space-y-3">
                 <DialogTitle className="text-2xl flex items-center gap-2">
                   {selectedAmadeusCity.name}, {selectedAmadeusCity.country}
                   <Badge variant="outline" className="ml-2">
@@ -568,7 +568,7 @@ export default function Home() {
                     Global Database
                   </Badge>
                 </DialogTitle>
-                <DialogDescription className="text-base leading-relaxed pt-2">
+                <DialogDescription className="text-base leading-relaxed">
                   Explore this destination from our global database powered by Amadeus. Discover tours, activities, and start planning your adventure.
                 </DialogDescription>
               </DialogHeader>
