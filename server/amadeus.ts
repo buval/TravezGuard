@@ -78,11 +78,16 @@ function diversifyFlightResults(flights: any[], maxResults: number = 15): any[] 
 
   console.log(`[Amadeus] Flight distribution - Direct: ${directFlights.length}, 1-Stop: ${oneStopFlights.length}, 2+ Stops: ${twoStopFlights.length}`);
 
-  // Group by departure time (morning, afternoon, evening, night)
+  // Group by departure time (morning, afternoon, evening, night) with fallback bucket
   const groupByDepartureTime = (flightList: any[]) => {
-    return flightList.reduce((acc: any, flight) => {
+    const groups: any = { morning: [], afternoon: [], evening: [], night: [], fallback: [] };
+    
+    flightList.forEach(flight => {
       const departureTime = flight.itineraries?.[0]?.segments?.[0]?.departure?.at;
-      if (!departureTime) return acc;
+      if (!departureTime) {
+        groups.fallback.push(flight);
+        return;
+      }
       
       const hour = parseInt(departureTime.split('T')[1].substring(0, 2));
       let timeSlot: string;
@@ -92,14 +97,16 @@ function diversifyFlightResults(flights: any[], maxResults: number = 15): any[] 
       else if (hour >= 18 && hour < 22) timeSlot = 'evening';
       else timeSlot = 'night';
       
-      if (!acc[timeSlot]) acc[timeSlot] = [];
-      acc[timeSlot].push(flight);
-      return acc;
-    }, {});
+      groups[timeSlot].push(flight);
+    });
+    
+    return groups;
   };
 
-  // Diversify each category
+  // Diversify each category by time
   const diversify = (flightList: any[], count: number) => {
+    if (flightList.length === 0) return [];
+    
     const byTime = groupByDepartureTime(flightList);
     const timeSlots = ['morning', 'afternoon', 'evening', 'night'];
     const result: any[] = [];
@@ -113,22 +120,65 @@ function diversifyFlightResults(flights: any[], maxResults: number = 15): any[] 
       }
       slotIndex++;
       
-      // Break if all slots are empty
-      if (timeSlots.every(s => !byTime[s] || byTime[s].length === 0)) break;
+      // Check if time slots are empty
+      if (timeSlots.every(s => !byTime[s] || byTime[s].length === 0)) {
+        // Add any remaining fallback flights
+        while (result.length < count && byTime.fallback.length > 0) {
+          result.push(byTime.fallback.shift());
+        }
+        break;
+      }
     }
     
     return result;
   };
 
-  // Determine how many from each category
-  const directCount = Math.min(Math.ceil(maxResults * 0.4), directFlights.length);
-  const oneStopCount = Math.min(Math.ceil(maxResults * 0.4), oneStopFlights.length);
-  const twoStopCount = Math.min(maxResults - directCount - oneStopCount, twoStopFlights.length);
+  // Initial allocation (aim for 40% direct, 40% one-stop, 20% two+ stops)
+  const targetDirect = Math.ceil(maxResults * 0.4);
+  const targetOneStop = Math.ceil(maxResults * 0.4);
+  const targetTwoStop = Math.floor(maxResults * 0.2);
+
+  // Allocate what's available
+  const directCount = Math.min(targetDirect, directFlights.length);
+  const oneStopCount = Math.min(targetOneStop, oneStopFlights.length);
+  const twoStopCount = Math.min(targetTwoStop, twoStopFlights.length);
 
   // Select diverse flights from each category
   const selectedDirect = diversify(directFlights, directCount);
   const selectedOneStop = diversify(oneStopFlights, oneStopCount);
   const selectedTwoStop = diversify(twoStopFlights, twoStopCount);
+
+  // Calculate remaining slots and backfill from available categories
+  let currentTotal = selectedDirect.length + selectedOneStop.length + selectedTwoStop.length;
+  const remainingSlots = maxResults - currentTotal;
+
+  if (remainingSlots > 0) {
+    // Create list of remaining flights from each category
+    const remainingDirect = directFlights.filter(f => !selectedDirect.includes(f));
+    const remainingOneStop = oneStopFlights.filter(f => !selectedOneStop.includes(f));
+    const remainingTwoStop = twoStopFlights.filter(f => !selectedTwoStop.includes(f));
+    
+    // Sort categories by available count (richest first)
+    const categories = [
+      { flights: remainingDirect, selected: selectedDirect },
+      { flights: remainingOneStop, selected: selectedOneStop },
+      { flights: remainingTwoStop, selected: selectedTwoStop }
+    ].sort((a, b) => b.flights.length - a.flights.length);
+
+    // Backfill from richest categories
+    let slotsToFill = remainingSlots;
+    for (const category of categories) {
+      if (slotsToFill === 0) break;
+      const available = category.flights.length;
+      const toTake = Math.min(slotsToFill, available);
+      
+      if (toTake > 0) {
+        const additional = diversify(category.flights, toTake);
+        category.selected.push(...additional);
+        slotsToFill -= additional.length;
+      }
+    }
+  }
 
   // Combine and sort by price
   const diverseResults = [...selectedDirect, ...selectedOneStop, ...selectedTwoStop]
