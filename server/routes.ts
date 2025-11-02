@@ -5,6 +5,7 @@ import { setupAuth } from "./auth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { searchFlights, searchAirports, getFlightInspiration, getPointsOfInterest, getToursAndActivities, searchCities } from "./amadeus";
+import { searchCityPhotos } from "./unsplash";
 
 // Auth middleware
 function isAuthenticated(req: Request, res: Response, next: NextFunction) {
@@ -69,15 +70,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let amadeusResults: any[] = [];
       try {
         const amadeusResponse = await searchCities(query);
-        amadeusResults = (amadeusResponse.data || []).map((city: any) => ({
-          id: city.iataCode || city.id,
-          name: city.name,
-          country: city.address?.countryName || "Unknown",
-          iataCode: city.iataCode,
-          geoCode: city.geoCode,
-          source: "amadeus" as const,
-          type: city.type,
-        }));
+        const cities = amadeusResponse.data || [];
+        
+        // Fetch Unsplash images for each city (in parallel)
+        const citiesWithImages = await Promise.all(
+          cities.map(async (city: any) => {
+            let imageUrl = null;
+            try {
+              const photos = await searchCityPhotos(city.name, 1);
+              if (photos.results.length > 0) {
+                imageUrl = photos.results[0].urls.regular;
+              }
+            } catch (error) {
+              console.error(`Failed to fetch image for ${city.name}:`, error);
+            }
+            
+            return {
+              id: city.iataCode || city.id,
+              name: city.name,
+              country: city.address?.countryName || "Unknown",
+              iataCode: city.iataCode,
+              geoCode: city.geoCode,
+              imageUrl,
+              source: "amadeus" as const,
+              type: city.type,
+            };
+          })
+        );
+        
+        amadeusResults = citiesWithImages;
       } catch (error) {
         console.error("Amadeus search error (non-blocking):", error);
         // Continue with just local results if Amadeus fails

@@ -17,6 +17,7 @@ type DestinationSearchResult = (Destination & { source: "database" }) | {
   country: string;
   iataCode?: string;
   geoCode?: { latitude: number; longitude: number };
+  imageUrl?: string | null;
   source: "amadeus";
   type?: string;
 };
@@ -248,25 +249,25 @@ export default function Home() {
                   }}
                   data-testid={`card-destination-${destination.id}`}
                 >
-                  {isAmadeus ? (
-                    <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                      <div className="text-center p-6">
-                        <Globe className="w-16 h-16 mx-auto mb-3 text-primary/40" />
-                        <Badge variant="secondary" className="text-xs">
-                          <Globe className="w-3 h-3 mr-1" />
-                          Discover Worldwide
-                        </Badge>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="aspect-[16/10] overflow-hidden">
+                  <div className="aspect-[16/10] overflow-hidden">
+                    {destination.imageUrl ? (
                       <img
-                        src={dbDest?.imageUrl}
+                        src={destination.imageUrl}
                         alt={destination.name}
                         className="w-full h-full object-cover transition-transform group-hover:scale-105"
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <div className="text-center p-6">
+                          <Globe className="w-16 h-16 mx-auto mb-3 text-primary/40" />
+                          <Badge variant="secondary" className="text-xs">
+                            <Globe className="w-3 h-3 mr-1" />
+                            {isAmadeus ? "Discover Worldwide" : "No Image"}
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="font-semibold text-lg line-clamp-1 flex-1" data-testid={`text-destination-name-${destination.id}`}>
