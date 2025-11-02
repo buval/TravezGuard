@@ -5,6 +5,17 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 
 ## Recent Changes (November 2025)
 
+### Investor Pitch PDF Generation (November 2, 2025)
+- **PDF Export**: Added comprehensive investor pitch PDF generation using pdf-lib library
+- **Professional Document**: 4-page investor document including:
+  - Executive summary and market opportunity
+  - Core platform features and capabilities
+  - Technology stack and API integrations
+  - Competitive advantages and development roadmap
+- **Easy Access**: Download button in Profile page (`/api/investor-pitch` endpoint)
+- **Professional Layout**: Manual text positioning with proper spacing, headers, and formatting
+- **Implementation**: Backend route generates PDF on-demand without external dependencies beyond pdf-lib
+
 ### Enhanced Flight Search Experience (November 2, 2025)
 - **Professional Flight Display**: Flight results now show airline names (e.g., "American Airlines") instead of codes (e.g., "AA"), aircraft types (e.g., "Boeing 737 • Narrow-body"), and baggage information with visual badges
 - **Flight Details Dialog**: Comprehensive popup showing:
