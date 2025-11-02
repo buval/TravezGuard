@@ -136,15 +136,6 @@ export default function Borders() {
 
       setVisaRequirements(newRequirements);
       setFailedDestinations(newFailedSet);
-
-      // Show error toast if multiple API calls failed
-      if (apiErrorCount > 0) {
-        toast({
-          title: "Some visa data could not be loaded",
-          description: `${apiErrorCount} destination(s) failed to load. Check your internet connection or try again later.`,
-          variant: "destructive",
-        });
-      }
     };
 
     fetchVisaRequirements();
