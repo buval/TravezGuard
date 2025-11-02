@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MobileNav } from "@/components/MobileNav";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
 import type { Destination, InsertTrip } from "@shared/schema";
@@ -30,6 +30,8 @@ export default function NewTrip() {
       return await response.json();
     },
     onSuccess: (trip: any) => {
+      // Invalidate trips cache so the trips list refreshes
+      queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
       toast({ title: "Trip created successfully!" });
       setLocation(`/trips/${trip.id}`);
     },
