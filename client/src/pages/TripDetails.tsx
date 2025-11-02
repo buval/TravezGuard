@@ -103,6 +103,7 @@ export default function TripDetails() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+      queryClient.removeQueries({ queryKey: ["/api/trips", id] });
       toast({ title: "Trip deleted successfully" });
       setLocation("/trips");
     },
@@ -646,9 +647,12 @@ export default function TripDetails() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete" disabled={deleteTripMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => id && deleteTripMutation.mutate(id)}
+              disabled={deleteTripMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               data-testid="button-confirm-delete"
             >
