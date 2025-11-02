@@ -170,7 +170,7 @@ export default function Borders() {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => window.location.href = "/api/login"}
+              onClick={() => window.location.href = "/auth"}
               className="rounded-full"
               data-testid="button-signin"
             >

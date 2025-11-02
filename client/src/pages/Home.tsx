@@ -138,7 +138,7 @@ export default function Home() {
           {!isAuthenticated && (
             <Button
               variant="default"
-              onClick={() => window.location.href = "/api/login"}
+              onClick={() => window.location.href = "/auth"}
               className="rounded-full"
               data-testid="button-login"
             >
@@ -321,7 +321,7 @@ export default function Home() {
               </p>
               <Button
                 size="lg"
-                onClick={() => window.location.href = "/api/login"}
+                onClick={() => window.location.href = "/auth"}
                 className="rounded-full"
                 data-testid="button-cta-signin"
               >
@@ -675,7 +675,7 @@ export default function Home() {
                 {!isAuthenticated && (
                   <Button
                     size="sm"
-                    onClick={() => window.location.href = "/api/login"}
+                    onClick={() => window.location.href = "/auth"}
                     className="w-full"
                   >
                     Sign In to See More
