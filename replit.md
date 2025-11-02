@@ -5,6 +5,21 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 
 ## Recent Changes (November 2025)
 
+### Enhanced Flight Search Experience (November 2, 2025)
+- **Professional Flight Display**: Flight results now show airline names (e.g., "American Airlines") instead of codes (e.g., "AA"), aircraft types (e.g., "Boeing 737 • Narrow-body"), and baggage information with visual badges
+- **Flight Details Dialog**: Comprehensive popup showing:
+  - Fare class and ticket type (Basic/Standard based on price)
+  - Baggage allowance (carry-on and checked bags)
+  - Segment-by-segment breakdown with layover times
+  - Aircraft type for each flight segment
+  - Total duration calculation
+  - In-flight amenities (WiFi, entertainment, meals)
+- **Airport Information Dialog**: Clickable airport codes display airport details, website links, and facility information
+- **Airline Database**: Created comprehensive airline code-to-name mapping utility with 50+ major airlines
+- **Aircraft Database**: Added aircraft type information for common aircraft models (Boeing, Airbus, Embraer, etc.)
+- **Type Safety**: Implemented proper TypeScript types for flight data (FlightOffer, FlightSegment, FlightItinerary) in shared schema
+- **Deterministic Logic**: All flight information (fare class, layover times) calculated from actual data - no random values
+
 ### Destination Dialog Layout Improvements (November 2, 2025)
 - **Image Layout Fix**: Changed destination dialog image from 16:9 aspect ratio to fixed 192px height to prevent content from being hidden when Amadeus activities load. This ensures activities are always visible without excessive scrolling.
 - **POI Integration Removal**: Removed decommissioned Amadeus POI (Points of Interest) API that was returning HTTP 410 Gone errors. Frontend now focuses solely on Tours & Activities which continue to work properly.
