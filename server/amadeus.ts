@@ -110,8 +110,202 @@ export async function searchFlights(params: {
   }
 }
 
+// Canadian airports (not available in Amadeus test environment)
+const CANADIAN_AIRPORTS = [
+  {
+    type: "location",
+    subType: "CITY",
+    name: "TORONTO",
+    iataCode: "YYZ",
+    geoCode: { latitude: 43.6777, longitude: -79.6248 },
+    address: {
+      cityName: "TORONTO",
+      cityCode: "YTO",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "ON",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "PEARSON INTL",
+    iataCode: "YYZ",
+    geoCode: { latitude: 43.6777, longitude: -79.6248 },
+    address: {
+      cityName: "TORONTO",
+      cityCode: "YTO",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "ON",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "CITY",
+    name: "MONTREAL",
+    iataCode: "YUL",
+    geoCode: { latitude: 45.4706, longitude: -73.7408 },
+    address: {
+      cityName: "MONTREAL",
+      cityCode: "YMQ",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "QC",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "TRUDEAU INTL",
+    iataCode: "YUL",
+    geoCode: { latitude: 45.4706, longitude: -73.7408 },
+    address: {
+      cityName: "MONTREAL",
+      cityCode: "YMQ",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "QC",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "CITY",
+    name: "VANCOUVER",
+    iataCode: "YVR",
+    geoCode: { latitude: 49.1939, longitude: -123.1844 },
+    address: {
+      cityName: "VANCOUVER",
+      cityCode: "YVR",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "BC",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "VANCOUVER INTL",
+    iataCode: "YVR",
+    geoCode: { latitude: 49.1939, longitude: -123.1844 },
+    address: {
+      cityName: "VANCOUVER",
+      cityCode: "YVR",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "BC",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "CITY",
+    name: "CALGARY",
+    iataCode: "YYC",
+    geoCode: { latitude: 51.1225, longitude: -114.0131 },
+    address: {
+      cityName: "CALGARY",
+      cityCode: "YYC",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "AB",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "CALGARY INTL",
+    iataCode: "YYC",
+    geoCode: { latitude: 51.1225, longitude: -114.0131 },
+    address: {
+      cityName: "CALGARY",
+      cityCode: "YYC",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "AB",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "CITY",
+    name: "OTTAWA",
+    iataCode: "YOW",
+    geoCode: { latitude: 45.3192, longitude: -75.6692 },
+    address: {
+      cityName: "OTTAWA",
+      cityCode: "YOW",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "ON",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "MACDONALD-CARTIER INTL",
+    iataCode: "YOW",
+    geoCode: { latitude: 45.3192, longitude: -75.6692 },
+    address: {
+      cityName: "OTTAWA",
+      cityCode: "YOW",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "ON",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "CITY",
+    name: "EDMONTON",
+    iataCode: "YEG",
+    geoCode: { latitude: 53.3097, longitude: -113.5796 },
+    address: {
+      cityName: "EDMONTON",
+      cityCode: "YEA",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "AB",
+      regionCode: "NAMER",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "EDMONTON INTL",
+    iataCode: "YEG",
+    geoCode: { latitude: 53.3097, longitude: -113.5796 },
+    address: {
+      cityName: "EDMONTON",
+      cityCode: "YEA",
+      countryName: "CANADA",
+      countryCode: "CA",
+      stateCode: "AB",
+      regionCode: "NAMER",
+    },
+  },
+];
+
 // Search for airports by keyword
 export async function searchAirports(keyword: string) {
+  const lowerKeyword = keyword.toLowerCase();
+  
+  // Search Canadian airports manually (not in test environment)
+  const canadianMatches = CANADIAN_AIRPORTS.filter(
+    (airport) =>
+      airport.name.toLowerCase().includes(lowerKeyword) ||
+      airport.iataCode.toLowerCase().includes(lowerKeyword) ||
+      airport.address.cityName.toLowerCase().includes(lowerKeyword)
+  );
+
   try {
     const token = await getAccessToken();
 
@@ -124,14 +318,44 @@ export async function searchAirports(keyword: string) {
         params: {
           keyword,
           subType: "AIRPORT,CITY",
-          page: { limit: 10 },
+          "page[limit]": 20,
         },
       }
     );
 
-    return response.data;
+    const amadeusResults = response.data.data || [];
+    
+    // Combine Canadian airports with Amadeus results
+    const combinedResults = [...canadianMatches, ...amadeusResults];
+
+    console.log(
+      `[Amadeus] Found ${amadeusResults.length} from API + ${canadianMatches.length} Canadian airports for "${keyword}"`
+    );
+
+    return {
+      ...response.data,
+      data: combinedResults,
+      meta: {
+        ...response.data.meta,
+        count: combinedResults.length,
+      },
+    };
   } catch (error: any) {
-    console.error("Airport search error:", error.response?.data || error.message);
+    console.error("[Amadeus] Airport search error:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+    
+    // If API fails, return just Canadian results
+    if (canadianMatches.length > 0) {
+      console.log(`[Amadeus] API failed, returning ${canadianMatches.length} Canadian airports`);
+      return {
+        data: canadianMatches,
+        meta: { count: canadianMatches.length },
+      };
+    }
+    
     throw new Error("Failed to search airports");
   }
 }
