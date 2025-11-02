@@ -37,18 +37,28 @@ const PASSPORT_COUNTRIES = [
 
 // Map destination countries to ISO-2 codes (complete mapping for all destinations)
 const DESTINATION_COUNTRY_CODES: Record<string, string> = {
+  "Argentina": "AR",
+  "Australia": "AU",
+  "Canada": "CA",
   "France": "FR",
+  "French Polynesia": "PF",
   "Greece": "GR",
+  "Iceland": "IS",
+  "Indonesia": "ID",
+  "Italy": "IT",
   "Japan": "JP",
+  "Jordan": "JO",
   "Maldives": "MV",
+  "Morocco": "MA",
+  "New Zealand": "NZ",
+  "Norway": "NO",
   "Peru": "PE",
+  "Spain": "ES",
   "Switzerland": "CH",
   "Tanzania": "TZ",
   "Turkey": "TR",
-  "Argentina": "AR",
-  "New Zealand": "NZ",
-  "Iceland": "IS",
-  "Indonesia": "ID",
+  "United Arab Emirates": "AE",
+  "United States": "US",
 };
 
 interface VisaRequirement {
