@@ -102,7 +102,8 @@ export default function Borders() {
         setLoadingDestinations(new Set(newLoadingSet));
 
         try {
-          const response = await fetch(`https://rough-sun-2523.fly.dev/visa/${selectedPassport}/${destCode}`);
+          // Use backend proxy to avoid CORS issues on mobile devices
+          const response = await fetch(`/api/visa/${selectedPassport}/${destCode}`);
           if (response.ok) {
             const data = await response.json();
             newRequirements.set(dest.id, data);

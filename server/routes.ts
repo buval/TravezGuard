@@ -453,6 +453,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Visa requirements proxy - proxy external API to avoid CORS issues on mobile
+  app.get("/api/visa/:passportCode/:destinationCode", async (req, res) => {
+    try {
+      const { passportCode, destinationCode } = req.params;
+      
+      // Validate parameters
+      if (!passportCode || !destinationCode) {
+        return res.status(400).json({ message: "Passport and destination codes are required" });
+      }
+
+      // Fetch from external visa API
+      const response = await fetch(`https://rough-sun-2523.fly.dev/visa/${passportCode}/${destinationCode}`);
+      
+      if (!response.ok) {
+        console.error(`Visa API returned status ${response.status} for ${passportCode}/${destinationCode}`);
+        return res.status(response.status).json({ 
+          message: "Visa information not available" 
+        });
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Error fetching visa requirements:", error);
+      res.status(500).json({ message: "Failed to fetch visa requirements" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
