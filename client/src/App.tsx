@@ -14,6 +14,7 @@ import Trips from "@/pages/Trips";
 import TripDetails from "@/pages/TripDetails";
 import Itinerary from "@/pages/Itinerary";
 import NewTrip from "@/pages/NewTrip";
+import EditTrip from "@/pages/EditTrip";
 import Profile from "@/pages/Profile";
 
 function Router() {
@@ -34,8 +35,9 @@ function Router() {
       <Route path="/flights" component={Flights} />
       <Route path="/trips" component={Trips} />
       <Route path="/trips/new" component={NewTrip} />
-      <Route path="/trips/:id" component={TripDetails} />
+      <Route path="/trips/:id/edit" component={EditTrip} />
       <Route path="/trips/:id/itinerary" component={Itinerary} />
+      <Route path="/trips/:id" component={TripDetails} />
       <Route path="/profile" component={Profile} />
       
       {/* 404 fallback */}
