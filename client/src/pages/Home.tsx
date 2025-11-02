@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MobileNav } from "@/components/MobileNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { MapPin, Shield, Search, X, Sun, Calendar, Landmark, Activity, ExternalLink, Star, Globe } from "lucide-react";
+import { MapPin, Shield, Search, X, Sun, Calendar, Activity, ExternalLink, Star, Globe } from "lucide-react";
 import type { Destination } from "@shared/schema";
 
 // Extended type for search results
@@ -64,12 +64,6 @@ export default function Home() {
   }>({
     queryKey: [searchUrl],
     enabled: !!searchUrl,
-  });
-
-  // Fetch POIs for selected destination
-  const { data: pois, isLoading: poisLoading } = useQuery<any>({
-    queryKey: [`/api/destinations/${selectedDestination?.id}/pois`],
-    enabled: !!selectedDestination,
   });
 
   // Only fetch activities if it's a database destination
@@ -342,7 +336,7 @@ export default function Home() {
                 const dest = selectedDestination as Destination;
                 return (
                   <>
-                    <div className="aspect-[16/9] overflow-hidden rounded-lg mb-6 relative">
+                    <div className="h-48 overflow-hidden rounded-lg mb-4 relative">
                       <img
                         src={dest.imageUrl}
                         alt={dest.name}
@@ -424,39 +418,6 @@ export default function Home() {
                         </div>
                       </div>
                     )}
-
-              {/* Points of Interest */}
-              {pois?.data && pois.data.length > 0 && (
-                <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900/50">
-                  <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Landmark className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    Top Attractions & Places
-                  </h3>
-                  <div className="space-y-3">
-                    {pois.data.slice(0, 5).map((poi: any) => (
-                      <div key={poi.id} className="flex items-start gap-3 p-3 bg-background rounded-lg border border-border">
-                        <MapPin className="w-4 h-4 mt-1 text-green-600 shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm">{poi.name}</p>
-                          {poi.category && (
-                            <p className="text-xs text-muted-foreground mt-1 capitalize">
-                              {poi.category}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Powered by Amadeus - Real-time attraction data
-                  </p>
-                </div>
-              )}
-              {poisLoading && (
-                <div className="mt-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-900/50">
-                  <p className="text-sm text-muted-foreground">Loading attractions...</p>
-                </div>
-              )}
 
               {/* Tours & Activities */}
               {activities?.data && activities.data.length > 0 && (
@@ -540,7 +501,7 @@ export default function Home() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           {selectedAmadeusCity && (
             <>
-              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-6 relative">
+              <div className="h-48 overflow-hidden rounded-lg mb-4 relative">
                 {selectedAmadeusCity.imageUrl ? (
                   <img
                     src={selectedAmadeusCity.imageUrl}
@@ -549,8 +510,8 @@ export default function Home() {
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/10 to-primary/5 flex items-center justify-center">
-                    <div className="text-center p-8">
-                      <Globe className="w-24 h-24 mx-auto mb-4 text-primary/40" />
+                    <div className="text-center p-6">
+                      <Globe className="w-16 h-16 mx-auto mb-3 text-primary/40" />
                       <Badge variant="secondary" className="text-sm">
                         <Globe className="w-4 h-4 mr-1.5" />
                         Discover Worldwide

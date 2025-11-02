@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertTripSchema, insertItineraryItemSchema, insertExpenseSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
-import { searchFlights, searchAirports, getFlightInspiration, getPointsOfInterest, getToursAndActivities, searchCities } from "./amadeus";
+import { searchFlights, searchAirports, getFlightInspiration, getToursAndActivities, searchCities } from "./amadeus";
 import { searchCityPhotos } from "./unsplash";
 
 // Auth middleware
@@ -221,39 +221,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Destination Experiences routes (public - accessible to guests and authenticated users)
-  app.get("/api/destinations/:id/pois", async (req, res) => {
-    try {
-      const destination = await storage.getDestination(req.params.id);
-      if (!destination) {
-        return res.status(404).json({ message: "Destination not found" });
-      }
-
-      if (!destination.latitude || !destination.longitude) {
-        return res.status(400).json({ 
-          message: "Destination coordinates not available" 
-        });
-      }
-
-      const results = await getPointsOfInterest({
-        latitude: parseFloat(destination.latitude),
-        longitude: parseFloat(destination.longitude),
-        radius: 5,
-      });
-
-      res.json(results);
-    } catch (error: any) {
-      console.error("POI search error:", error);
-      
-      // Handle decommissioned API gracefully (410 Gone)
-      if (error.status === 410 || error.message?.includes("decommissioned")) {
-        return res.json({ data: [], meta: { count: 0 } });
-      }
-      
-      // Return empty result for other errors to prevent UI from breaking
-      res.json({ data: [], meta: { count: 0 } });
-    }
-  });
-
   app.get("/api/destinations/:id/activities", async (req, res) => {
     try {
       const destination = await storage.getDestination(req.params.id);
