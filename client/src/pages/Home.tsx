@@ -239,7 +239,7 @@ export default function Home() {
               return (
                 <Card
                   key={destination.id}
-                  className="overflow-hidden cursor-pointer hover-elevate active-elevate-2 group"
+                  className="overflow-hidden cursor-pointer hover-elevate active-elevate-2 group flex flex-col"
                   onClick={() => {
                     if (isAmadeus) {
                       setSelectedAmadeusCity(destination);
@@ -249,7 +249,7 @@ export default function Home() {
                   }}
                   data-testid={`card-destination-${destination.id}`}
                 >
-                  <div className="aspect-[16/10] overflow-hidden">
+                  <div className="aspect-[16/10] overflow-hidden relative flex-shrink-0">
                     {destination.imageUrl ? (
                       <img
                         src={destination.imageUrl}
@@ -268,7 +268,7 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 flex-1">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="font-semibold text-lg line-clamp-1 flex-1" data-testid={`text-destination-name-${destination.id}`}>
                         {destination.name}
