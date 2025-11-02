@@ -16,7 +16,13 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 - **Professional Layout**: Manual text positioning with proper spacing, headers, and formatting
 - **Implementation**: Backend route generates PDF on-demand without external dependencies beyond pdf-lib
 
-### Enhanced Flight Search Experience (November 2, 2025)
+### Flight Search Diversification & Enhancement (November 2, 2025)
+- **Intelligent Result Diversification**: Enhanced flight search algorithm to provide more realistic and varied results
+  - Requests 100 flights from Amadeus API, then intelligently selects the most diverse 15-20
+  - Balanced mix: ~40% direct flights, ~40% one-stop, ~20% two+ stops
+  - Departure times spread across morning (6am-12pm), afternoon (12pm-6pm), evening (6pm-10pm), and night (10pm-6am)
+  - Round-robin selection ensures flights span different times of day
+  - Results sorted by price after diversification
 - **Professional Flight Display**: Flight results now show airline names (e.g., "American Airlines") instead of codes (e.g., "AA"), aircraft types (e.g., "Boeing 737 • Narrow-body"), and baggage information with visual badges
 - **Flight Details Dialog**: Comprehensive popup showing:
   - Fare class and ticket type (Basic/Standard based on price)
