@@ -110,8 +110,9 @@ export async function searchFlights(params: {
   }
 }
 
-// Canadian airports (not available in Amadeus test environment)
-const CANADIAN_AIRPORTS = [
+// Additional airports for testing (not available in Amadeus test environment)
+// Includes: Canadian airports and Middle East airports
+const TEST_AIRPORTS = [
   {
     type: "location",
     subType: "CITY",
@@ -292,14 +293,57 @@ const CANADIAN_AIRPORTS = [
       regionCode: "NAMER",
     },
   },
+  // Dubai airports
+  {
+    type: "location",
+    subType: "CITY",
+    name: "DUBAI",
+    iataCode: "DXB",
+    geoCode: { latitude: 25.2532, longitude: 55.3657 },
+    address: {
+      cityName: "DUBAI",
+      cityCode: "DXB",
+      countryName: "UNITED ARAB EMIRATES",
+      countryCode: "AE",
+      regionCode: "MENA",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "DUBAI INTL",
+    iataCode: "DXB",
+    geoCode: { latitude: 25.2532, longitude: 55.3657 },
+    address: {
+      cityName: "DUBAI",
+      cityCode: "DXB",
+      countryName: "UNITED ARAB EMIRATES",
+      countryCode: "AE",
+      regionCode: "MENA",
+    },
+  },
+  {
+    type: "location",
+    subType: "AIRPORT",
+    name: "AL MAKTOUM INTL",
+    iataCode: "DWC",
+    geoCode: { latitude: 24.8967, longitude: 55.1614 },
+    address: {
+      cityName: "DUBAI",
+      cityCode: "DXB",
+      countryName: "UNITED ARAB EMIRATES",
+      countryCode: "AE",
+      regionCode: "MENA",
+    },
+  },
 ];
 
 // Search for airports by keyword
 export async function searchAirports(keyword: string) {
   const lowerKeyword = keyword.toLowerCase();
   
-  // Search Canadian airports manually (not in test environment)
-  const canadianMatches = CANADIAN_AIRPORTS.filter(
+  // Search test airports manually (not in test environment)
+  const testAirportMatches = TEST_AIRPORTS.filter(
     (airport) =>
       airport.name.toLowerCase().includes(lowerKeyword) ||
       airport.iataCode.toLowerCase().includes(lowerKeyword) ||
@@ -325,11 +369,11 @@ export async function searchAirports(keyword: string) {
 
     const amadeusResults = response.data.data || [];
     
-    // Combine Canadian airports with Amadeus results
-    const combinedResults = [...canadianMatches, ...amadeusResults];
+    // Combine test airports with Amadeus results
+    const combinedResults = [...testAirportMatches, ...amadeusResults];
 
     console.log(
-      `[Amadeus] Found ${amadeusResults.length} from API + ${canadianMatches.length} Canadian airports for "${keyword}"`
+      `[Amadeus] Found ${amadeusResults.length} from API + ${testAirportMatches.length} test airports for "${keyword}"`
     );
 
     return {
@@ -347,12 +391,12 @@ export async function searchAirports(keyword: string) {
       message: error.message,
     });
     
-    // If API fails, return just Canadian results
-    if (canadianMatches.length > 0) {
-      console.log(`[Amadeus] API failed, returning ${canadianMatches.length} Canadian airports`);
+    // If API fails, return just test airport results
+    if (testAirportMatches.length > 0) {
+      console.log(`[Amadeus] API failed, returning ${testAirportMatches.length} test airports`);
       return {
-        data: canadianMatches,
-        meta: { count: canadianMatches.length },
+        data: testAirportMatches,
+        meta: { count: testAirportMatches.length },
       };
     }
     
