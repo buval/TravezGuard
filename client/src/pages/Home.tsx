@@ -540,14 +540,24 @@ export default function Home() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           {selectedAmadeusCity && (
             <>
-              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6 bg-gradient-to-br from-primary/30 via-primary/10 to-primary/5 flex items-center justify-center">
-                <div className="text-center p-8">
-                  <Globe className="w-24 h-24 mx-auto mb-4 text-primary/40" />
-                  <Badge variant="secondary" className="text-sm">
-                    <Globe className="w-4 h-4 mr-1.5" />
-                    Discover Worldwide
-                  </Badge>
-                </div>
+              <div className="aspect-[16/9] overflow-hidden rounded-lg mb-4 -mt-6">
+                {selectedAmadeusCity.imageUrl ? (
+                  <img
+                    src={selectedAmadeusCity.imageUrl}
+                    alt={`${selectedAmadeusCity.name}, ${selectedAmadeusCity.country}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/10 to-primary/5 flex items-center justify-center">
+                    <div className="text-center p-8">
+                      <Globe className="w-24 h-24 mx-auto mb-4 text-primary/40" />
+                      <Badge variant="secondary" className="text-sm">
+                        <Globe className="w-4 h-4 mr-1.5" />
+                        Discover Worldwide
+                      </Badge>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <DialogHeader>
