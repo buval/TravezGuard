@@ -1,18 +1,59 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MobileNav } from "@/components/MobileNav";
-import { Plus, Calendar, MapPin } from "lucide-react";
-import { Link } from "wouter";
+import { Plus, Calendar, MapPin, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useState } from "react";
 import type { Trip, Destination } from "@shared/schema";
 
 export default function Trips() {
   const { isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [tripToDelete, setTripToDelete] = useState<string | null>(null);
 
   const { data: trips, isLoading } = useQuery<(Trip & { destination: Destination })[]>({
     queryKey: ["/api/trips"],
     enabled: isAuthenticated,
+  });
+
+  const deleteTripMutation = useMutation({
+    mutationFn: async (tripId: string) => {
+      await apiRequest("DELETE", `/api/trips/${tripId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+      toast({ title: "Trip deleted successfully" });
+      setTripToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to delete trip",
+        description: error.message,
+        variant: "destructive",
+      });
+      setTripToDelete(null);
+    },
   });
 
   const formatDate = (dateStr: string) => {
@@ -67,19 +108,61 @@ export default function Trips() {
         ) : trips && trips.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {trips.map((trip) => (
-              <Link key={trip.id} href={`/trips/${trip.id}`}>
-                <Card className="overflow-hidden cursor-pointer hover-elevate active-elevate-2 group h-full">
-                  <div className="aspect-[16/9] overflow-hidden">
+              <Card key={trip.id} className="overflow-hidden hover-elevate active-elevate-2 group h-full">
+                <Link href={`/trips/${trip.id}`}>
+                  <div className="aspect-[16/9] overflow-hidden cursor-pointer">
                     <img
                       src={trip.destination?.imageUrl}
                       alt={trip.title}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     />
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-semibold mb-2 line-clamp-1" data-testid={`text-trip-title-${trip.id}`}>
-                      {trip.title}
-                    </h3>
+                </Link>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <Link href={`/trips/${trip.id}`} className="flex-1 min-w-0 cursor-pointer">
+                      <h3 className="font-semibold line-clamp-1" data-testid={`text-trip-title-${trip.id}`}>
+                        {trip.title}
+                      </h3>
+                    </Link>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 flex-shrink-0"
+                          data-testid={`button-trip-menu-${trip.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLocation(`/trips/${trip.id}/edit`);
+                          }}
+                          data-testid={`menu-item-edit-${trip.id}`}
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit Trip
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTripToDelete(trip.id);
+                          }}
+                          className="text-destructive"
+                          data-testid={`menu-item-delete-${trip.id}`}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Trip
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <Link href={`/trips/${trip.id}`} className="block cursor-pointer">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       <MapPin className="w-4 h-4" />
                       <span className="line-clamp-1">{trip.destination?.name}, {trip.destination?.country}</span>
@@ -90,9 +173,9 @@ export default function Trips() {
                         {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
                       </span>
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                  </Link>
+                </CardContent>
+              </Card>
             ))}
           </div>
         ) : (
@@ -114,6 +197,27 @@ export default function Trips() {
           </Card>
         )}
       </main>
+
+      <AlertDialog open={!!tripToDelete} onOpenChange={(open) => !open && setTripToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Trip</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this trip? This action cannot be undone and will also delete all itinerary items and expenses associated with this trip.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => tripToDelete && deleteTripMutation.mutate(tripToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              {deleteTripMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <MobileNav />
     </div>
