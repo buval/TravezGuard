@@ -323,7 +323,7 @@ export default function Borders() {
                         <p className="text-sm">Country mapping unavailable</p>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">No data available</p>
+                      <p className="text-sm text-muted-foreground">Still working on it</p>
                     )}
                   </CardContent>
                 </Card>
