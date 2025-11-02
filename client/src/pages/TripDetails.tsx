@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,12 +8,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Progress } from "@/components/ui/progress";
 import { MobileNav } from "@/components/MobileNav";
-import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck, Sun, DollarSign, Plus, Trash2, Hotel, Utensils, Plane, Ticket, ShoppingBag, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, Calendar, MapPin, FileText, Edit, Shield, FileCheck, Sun, DollarSign, Plus, Trash2, Hotel, Utensils, Plane, Ticket, ShoppingBag, MoreHorizontal, MoreVertical, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertExpenseSchema } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Trip, Destination, ItineraryItem, Expense } from "@shared/schema";
 
 const EXPENSE_CATEGORIES = [
@@ -27,8 +43,10 @@ const EXPENSE_CATEGORIES = [
 
 export default function TripDetails() {
   const { id } = useParams<{ id: string }>();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data: trip, isLoading } = useQuery<Trip & { destination: Destination; itineraryItems: ItineraryItem[]; expenses: Expense[] }>({
     queryKey: ["/api/trips", id],
@@ -76,6 +94,25 @@ export default function TripDetails() {
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message || "Failed to delete expense", variant: "destructive" });
+    },
+  });
+
+  const deleteTripMutation = useMutation({
+    mutationFn: async (tripId: string) => {
+      await apiRequest("DELETE", `/api/trips/${tripId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/trips"] });
+      toast({ title: "Trip deleted successfully" });
+      setLocation("/trips");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to delete trip",
+        description: error.message,
+        variant: "destructive",
+      });
+      setShowDeleteDialog(false);
     },
   });
 
@@ -170,6 +207,39 @@ export default function TripDetails() {
             <ChevronLeft className="w-5 h-5" />
           </Button>
         </Link>
+
+        {/* Trip Options Menu */}
+        <div className="absolute top-4 right-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="rounded-full bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20"
+                data-testid="button-trip-menu"
+              >
+                <MoreVertical className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => setLocation(`/trips/${id}/edit`)}
+                data-testid="menu-item-edit-trip"
+              >
+                <Pencil className="w-4 h-4 mr-2" />
+                Edit Trip
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-destructive"
+                data-testid="menu-item-delete-trip"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Trip
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Trip Info Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -566,6 +636,27 @@ export default function TripDetails() {
           )}
         </Card>
       </main>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Trip</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this trip? This action cannot be undone and will also delete all itinerary items and expenses associated with this trip.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => id && deleteTripMutation.mutate(id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              {deleteTripMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <MobileNav />
     </div>
