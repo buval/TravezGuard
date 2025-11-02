@@ -278,9 +278,9 @@ export default function Borders() {
                       <div className="flex items-start gap-2 text-muted-foreground">
                         <AlertCircle className="w-4 h-4 mt-0.5" />
                         <div className="text-sm">
-                          <p className="font-medium">Information unavailable</p>
+                          <p className="font-medium">Still working on it</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Visa data not available for this destination
+                            Thanks for your patience
                           </p>
                         </div>
                       </div>
