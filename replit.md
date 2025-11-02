@@ -21,10 +21,24 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 - **Route Redirects**: Both `/explore` and `/home` routes now redirect to `/` to maintain backwards compatibility.
 - **Improved UX**: Single unified experience for discovering destinations, available to both guest and authenticated users.
 
-### Expanded Destination Database (12 New Destinations)
-Added 12 stunning new destinations with beautiful AI-generated images:
+### Canadian Destinations Expansion (November 2, 2025)
+Added 5 new Canadian destinations with beautiful AI-generated images:
 
-**Featured Destinations (7 new):**
+**New Canadian Cities (Featured):**
+- **Vancouver, Canada** (City) - Coastal city with mountains, ocean, and urban sophistication
+- **Toronto, Canada** (City) - Iconic CN Tower, diverse neighborhoods, and cultural experiences
+
+**New Canadian Destinations (Non-Featured):**
+- **Quebec City, Canada** (Cultural) - European-style walled city with French heritage
+- **Whistler, Canada** (Mountain) - Premier ski resort with world-class slopes
+- **Niagara Falls, Canada** (Adventure) - Powerful waterfalls and natural wonder
+
+**Total Canadian Destinations**: Now **6 destinations** including the original Banff.
+
+### Expanded Destination Database (Previous Updates)
+Added 12 stunning destinations with beautiful AI-generated images:
+
+**Featured Destinations:**
 - **Bali, Indonesia** (Beach) - Lush rice terraces, ancient temples, and pristine beaches
 - **Iceland** (Adventure) - Northern Lights, volcanoes, glaciers, and geysers
 - **New York City, USA** (City) - Iconic skyline, world-class museums, and Broadway
@@ -32,7 +46,7 @@ Added 12 stunning new destinations with beautiful AI-generated images:
 - **Petra, Jordan** (Cultural) - Ancient rose-red city carved into sandstone cliffs
 - **Banff, Canada** (Mountain) - Turquoise lakes, Rocky Mountains, and pristine wilderness
 
-**Non-Featured Destinations (6 new):**
+**Non-Featured Destinations:**
 - **Bora Bora, French Polynesia** (Beach) - Overwater bungalows and crystal-clear lagoons
 - **Venice, Italy** (City) - Romantic canals, gondolas, and Byzantine architecture
 - **Norwegian Fjords, Norway** (Mountain) - Dramatic cliffs, waterfalls, and midnight sun
@@ -40,7 +54,7 @@ Added 12 stunning new destinations with beautiful AI-generated images:
 - **Great Barrier Reef, Australia** (Beach) - World's largest coral reef system
 - **Marrakech, Morocco** (Cultural) - Vibrant souks, palaces, and exotic gardens
 
-**Total Destinations**: Now **20 destinations** (previously 8), each with comprehensive visa requirements, climate data, best months to visit, and geographic coordinates.
+**Total Destinations**: Now **25 destinations** (previously 20), each with comprehensive visa requirements, climate data, best months to visit, and geographic coordinates.
 
 ### Updated Navigation
 - **Mobile Navigation**: Bottom nav bar now has **5 items** (previously 6):
@@ -50,7 +64,7 @@ Added 12 stunning new destinations with beautiful AI-generated images:
 
 ### Combined Destination Search (Local Database + Amadeus API)
 - **Intelligent Search**: When users search for destinations, the app now queries both:
-  - Local database (20 curated destinations)
+  - Local database (25 curated destinations)
   - Amadeus API (thousands of cities worldwide)
 - **Visual Distinction**: 
   - Database destinations: Show full details with images, descriptions, climate, and visa info
@@ -92,7 +106,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Application Features
 - **Public Pages**:
-    - **Home (`/`)**: Destination discovery with combined search (local database + Amadeus API), filters (Beach, Mountain, City, Cultural, Adventure), and detailed destination dialogs including real-time Tours & Activities (Amadeus API), climate, and visa info. Search discovers thousands of cities worldwide beyond the 20 curated destinations.
+    - **Home (`/`)**: Destination discovery with combined search (local database + Amadeus API), filters (Beach, Mountain, City, Cultural, Adventure), and detailed destination dialogs including real-time Tours & Activities (Amadeus API), climate, and visa info. Search discovers thousands of cities worldwide beyond the 25 curated destinations.
     - **Borders (`/borders`)**: Real-time visa and entry requirement checks based on passport nationality using the Passport Index API, with color-coded statuses.
     - **Flights (`/flights`)**: Real-time flight search (one-way/round-trip) powered by Amadeus API, including airport autocomplete.
 - **Authenticated Pages**:
