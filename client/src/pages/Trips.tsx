@@ -87,10 +87,11 @@ export default function Trips() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-center max-w-7xl relative">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
+          <div className="w-24"></div>
           <img src={logoUrl} alt="Travez" className="h-8" data-testid="img-logo" />
           <Link href="/trips/new">
-            <Button size="sm" className="rounded-full gap-2 absolute right-4" data-testid="button-create-trip">
+            <Button size="sm" className="rounded-full gap-2" data-testid="button-create-trip">
               <Plus className="w-4 h-4" />
               New Trip
             </Button>
