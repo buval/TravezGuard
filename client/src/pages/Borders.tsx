@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { MobileNav } from "@/components/MobileNav";
-import { Shield, MapPin, Clock, ExternalLink, Loader2, AlertCircle } from "lucide-react";
+import { Shield, MapPin, Clock, ExternalLink, Loader2, AlertCircle, Home } from "lucide-react";
 import type { Destination } from "@shared/schema";
 import logoUrl from "@assets/logo_1761679001485.png";
 
@@ -62,11 +62,11 @@ const DESTINATION_COUNTRY_CODES: Record<string, string> = {
 };
 
 interface VisaRequirement {
-  id: number;
-  passport: { name: string; code: string };
-  destination: { name: string; code: string };
-  dur: number | null;
-  category: { name: string; code: string };
+  id?: number;
+  passport?: { name: string; code: string };
+  destination?: { name: string; code: string };
+  dur?: number | null;
+  category?: { name: string; code: string };
   last_updated: string;
 }
 
@@ -284,7 +284,7 @@ export default function Borders() {
                           </p>
                         </div>
                       </div>
-                    ) : visaReq ? (
+                    ) : visaReq && visaReq.category ? (
                       <div className="space-y-3">
                         <div>
                           <Badge
@@ -314,6 +314,16 @@ export default function Borders() {
                             View official source
                             <ExternalLink className="w-3 h-3" />
                           </a>
+                        </div>
+                      </div>
+                    ) : visaReq && !visaReq.category ? (
+                      <div className="flex items-start gap-2 text-muted-foreground">
+                        <Home className="w-4 h-4 mt-0.5" />
+                        <div className="text-sm">
+                          <p className="font-medium">Home Country</p>
+                          <p className="text-xs mt-1">
+                            No visa required for your own country
+                          </p>
                         </div>
                       </div>
                     ) : !destCode ? (
