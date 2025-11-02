@@ -422,64 +422,80 @@ export default function Home() {
                       </div>
                     )}
 
-              {/* Tours & Activities */}
-              {activities?.data && activities.data.length > 0 && (
-                <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
-                  <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                    Popular Tours & Activities
-                  </h3>
-                  <div className="space-y-3">
-                    {activities.data.slice(0, 5).map((activity: any) => (
-                      <div key={activity.id} className="p-3 bg-background rounded-lg border border-border">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm line-clamp-2">{activity.name}</p>
-                            {activity.shortDescription && (
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                {activity.shortDescription}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-3 mt-2">
-                              {activity.rating && (
-                                <div className="flex items-center gap-1 text-xs">
-                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                  <span>{activity.rating}</span>
-                                </div>
-                              )}
-                              {activity.price?.amount && (
-                                <span className="text-xs font-medium text-primary">
-                                  {activity.price.currencyCode} {activity.price.amount}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          {activity.bookingLink && (
-                            <a
-                              href={activity.bookingLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="shrink-0"
-                            >
-                              <Button size="sm" variant="outline" className="h-8">
-                                <ExternalLink className="w-3 h-3" />
-                              </Button>
-                            </a>
-                          )}
-                        </div>
+              {/* Tours & Activities - Always show section to improve visibility */}
+              <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                  Popular Tours & Activities
+                </h3>
+                
+                {activitiesLoading && (
+                  <div className="space-y-3" data-testid="loading-activities">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="p-3 bg-background rounded-lg border border-border animate-pulse">
+                        <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-muted rounded w-full mb-2"></div>
+                        <div className="h-3 bg-muted rounded w-1/2"></div>
                       </div>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Powered by Amadeus - Book directly with providers
+                )}
+                
+                {!activitiesLoading && activities?.data && activities.data.length > 0 && (
+                  <>
+                    <div className="space-y-3">
+                      {activities.data.slice(0, 5).map((activity: any) => (
+                        <div key={activity.id} className="p-3 bg-background rounded-lg border border-border">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm line-clamp-2">{activity.name}</p>
+                              {activity.shortDescription && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                  {activity.shortDescription}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-3 mt-2">
+                                {activity.rating && (
+                                  <div className="flex items-center gap-1 text-xs">
+                                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                    <span>{activity.rating}</span>
+                                  </div>
+                                )}
+                                {activity.price?.amount && (
+                                  <span className="text-xs font-medium text-primary">
+                                    {activity.price.currencyCode} {activity.price.amount}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {activity.bookingLink && (
+                              <a
+                                href={activity.bookingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0"
+                              >
+                                <Button size="sm" variant="outline" className="h-8">
+                                  <ExternalLink className="w-3 h-3" />
+                                </Button>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-3">
+                      Powered by Amadeus - Book directly with providers
+                    </p>
+                  </>
+                )}
+                
+                {!activitiesLoading && (!activities?.data || activities.data.length === 0) && (
+                  <p className="text-sm text-muted-foreground">
+                    No activities found for this destination at the moment.
                   </p>
-                </div>
-              )}
-              {activitiesLoading && (
-                <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
-                  <p className="text-sm text-muted-foreground">Loading activities...</p>
-                </div>
-              )}
+                )}
+              </div>
 
                     {isAuthenticated && (
                       <Button 
@@ -565,75 +581,82 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Tours & Activities */}
-              {amadeusActivitiesLoading && (
-                <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
-                  <p className="text-sm text-muted-foreground">Loading activities...</p>
-                </div>
-              )}
-              
-              {amadeusActivities?.data && amadeusActivities.data.length > 0 && (
+              {/* Tours & Activities - Show for cities with coordinates */}
+              {selectedAmadeusCity.geoCode ? (
                 <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-900/50">
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
                     <Activity className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                     Popular Tours & Activities
                   </h3>
-                  <div className="space-y-3">
-                    {amadeusActivities.data.slice(0, 5).map((activity: any) => (
-                      <div key={activity.id} className="p-3 bg-background rounded-lg border border-border">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm line-clamp-2">{activity.name}</p>
-                            {activity.shortDescription && (
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                {activity.shortDescription}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-3 mt-2">
-                              {activity.rating && (
-                                <div className="flex items-center gap-1 text-xs">
-                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                                  <span>{activity.rating}</span>
+                  
+                  {amadeusActivitiesLoading && (
+                    <div className="space-y-3" data-testid="loading-activities">
+                      {[1, 2, 3].map((i) => (
+                        <div key={i} className="p-3 bg-background rounded-lg border border-border animate-pulse">
+                          <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                          <div className="h-3 bg-muted rounded w-full mb-2"></div>
+                          <div className="h-3 bg-muted rounded w-1/2"></div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {!amadeusActivitiesLoading && amadeusActivities?.data && amadeusActivities.data.length > 0 && (
+                    <>
+                      <div className="space-y-3">
+                        {amadeusActivities.data.slice(0, 5).map((activity: any) => (
+                          <div key={activity.id} className="p-3 bg-background rounded-lg border border-border">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm line-clamp-2">{activity.name}</p>
+                                {activity.shortDescription && (
+                                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                    {activity.shortDescription}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-3 mt-2">
+                                  {activity.rating && (
+                                    <div className="flex items-center gap-1 text-xs">
+                                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                      <span>{activity.rating}</span>
+                                    </div>
+                                  )}
+                                  {activity.price?.amount && (
+                                    <span className="text-xs font-medium text-primary">
+                                      {activity.price.currencyCode} {activity.price.amount}
+                                    </span>
+                                  )}
                                 </div>
-                              )}
-                              {activity.price?.amount && (
-                                <span className="text-xs font-medium text-primary">
-                                  {activity.price.currencyCode} {activity.price.amount}
-                                </span>
+                              </div>
+                              {activity.bookingLink && (
+                                <a
+                                  href={activity.bookingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="shrink-0"
+                                >
+                                  <Button size="sm" variant="outline" className="h-8">
+                                    <ExternalLink className="w-3 h-3" />
+                                  </Button>
+                                </a>
                               )}
                             </div>
                           </div>
-                          {activity.bookingLink && (
-                            <a
-                              href={activity.bookingLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="shrink-0"
-                            >
-                              <Button size="sm" variant="outline" className="h-8">
-                                <ExternalLink className="w-3 h-3" />
-                              </Button>
-                            </a>
-                          )}
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-3">
-                    Powered by Amadeus - Book directly with providers
-                  </p>
+                      <p className="text-xs text-muted-foreground mt-3">
+                        Powered by Amadeus - Book directly with providers
+                      </p>
+                    </>
+                  )}
+                  
+                  {!amadeusActivitiesLoading && (!amadeusActivities?.data || amadeusActivities.data.length === 0) && (
+                    <p className="text-sm text-muted-foreground">
+                      No tours or activities available for this destination at the moment.
+                    </p>
+                  )}
                 </div>
-              )}
-
-              {!amadeusActivitiesLoading && (!amadeusActivities?.data || amadeusActivities.data.length === 0) && selectedAmadeusCity.geoCode && (
-                <div className="mt-4 p-4 bg-muted rounded-lg border border-border">
-                  <p className="text-sm text-muted-foreground">
-                    No tours or activities available for this destination at the moment.
-                  </p>
-                </div>
-              )}
-
-              {!selectedAmadeusCity.geoCode && (
+              ) : (
                 <div className="mt-4 p-4 bg-muted rounded-lg border border-border">
                   <p className="text-sm text-muted-foreground">
                     Limited information available for this destination. Try searching for nearby cities or check back later.
