@@ -5,17 +5,6 @@ Travez is a mobile-first travel planning application designed to inspire travel 
 
 ## Recent Changes (November 2025)
 
-### Investor Pitch PDF Generation (November 2, 2025)
-- **PDF Export**: Added comprehensive investor pitch PDF generation using pdf-lib library
-- **Professional Document**: 4-page investor document including:
-  - Executive summary and market opportunity
-  - Core platform features and capabilities
-  - Technology stack and API integrations
-  - Competitive advantages and development roadmap
-- **Easy Access**: Download button in Profile page (`/api/investor-pitch` endpoint)
-- **Professional Layout**: Manual text positioning with proper spacing, headers, and formatting
-- **Implementation**: Backend route generates PDF on-demand without external dependencies beyond pdf-lib
-
 ### Flight Search Diversification & Enhancement (November 2, 2025)
 - **Intelligent Result Diversification**: Enhanced flight search algorithm to provide more realistic and varied results
   - Requests 100 flights from Amadeus API, then intelligently selects the most diverse 15-20
