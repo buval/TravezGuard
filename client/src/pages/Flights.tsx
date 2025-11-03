@@ -9,6 +9,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { AirportSearch } from "@/components/AirportSearch";
 import { FlightDetailsDialog } from "@/components/FlightDetailsDialog";
 import { AirportInfoDialog } from "@/components/AirportInfoDialog";
+import { FlightBookingDialog } from "@/components/FlightBookingDialog";
 import { Plane, Search, Clock, Info, ArrowRight, Briefcase, ShoppingBag } from "lucide-react";
 import { format } from "date-fns";
 import { getAirlineName, getAircraftInfo, getBaggageInfo } from "@/lib/airlineData";
@@ -26,6 +27,8 @@ export default function Flights() {
   const [searchParams, setSearchParams] = useState<any>(null);
   const [selectedFlight, setSelectedFlight] = useState<FlightOffer | null>(null);
   const [flightDetailsOpen, setFlightDetailsOpen] = useState(false);
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [flightToBook, setFlightToBook] = useState<FlightOffer | null>(null);
   const [airportInfoCode, setAirportInfoCode] = useState("");
   const [airportInfoOpen, setAirportInfoOpen] = useState(false);
 
@@ -390,6 +393,10 @@ export default function Flights() {
         open={flightDetailsOpen}
         onOpenChange={setFlightDetailsOpen}
         flight={selectedFlight}
+        onBookFlight={(flight) => {
+          setFlightToBook(flight);
+          setBookingDialogOpen(true);
+        }}
       />
 
       {/* Airport Info Dialog */}
@@ -397,6 +404,13 @@ export default function Flights() {
         open={airportInfoOpen}
         onOpenChange={setAirportInfoOpen}
         airportCode={airportInfoCode}
+      />
+
+      {/* Flight Booking Dialog */}
+      <FlightBookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        flight={flightToBook}
       />
     </div>
   );

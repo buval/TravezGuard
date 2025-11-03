@@ -22,9 +22,10 @@ interface FlightDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   flight: FlightOffer | null;
+  onBookFlight?: (flight: FlightOffer) => void;
 }
 
-export function FlightDetailsDialog({ open, onOpenChange, flight }: FlightDetailsDialogProps) {
+export function FlightDetailsDialog({ open, onOpenChange, flight, onBookFlight }: FlightDetailsDialogProps) {
   if (!flight) return null;
 
   const outbound = flight.itineraries[0];
@@ -34,7 +35,7 @@ export function FlightDetailsDialog({ open, onOpenChange, flight }: FlightDetail
   const airlineName = getAirlineName(airlineCode);
   
   // Get aircraft info for the first segment
-  const aircraftInfo = getAircraftInfo(firstSegment.aircraft?.code);
+  const aircraftInfo = getAircraftInfo(firstSegment.aircraft?.code || "");
   
   // Get baggage info
   const baggageInfo = getBaggageInfo(airlineCode);
@@ -263,7 +264,15 @@ export function FlightDetailsDialog({ open, onOpenChange, flight }: FlightDetail
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Button className="flex-1" size="lg" data-testid="button-book-flight">
+            <Button 
+              className="flex-1" 
+              size="lg" 
+              onClick={() => {
+                onOpenChange(false);
+                onBookFlight?.(flight);
+              }}
+              data-testid="button-book-flight"
+            >
               Book This Flight
             </Button>
             <Button variant="outline" size="lg" onClick={() => onOpenChange(false)} data-testid="button-close-dialog">

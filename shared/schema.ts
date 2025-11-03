@@ -172,6 +172,55 @@ export const expensesRelations = relations(expenses, ({ one }) => ({
   }),
 }));
 
+// Flight Bookings table - Store flight reservations
+export const flightBookings = pgTable("flight_bookings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  bookingReference: varchar("booking_reference").notNull().unique(), // e.g., "TRV-ABC123"
+  flightData: jsonb("flight_data").notNull(), // Store complete flight offer data
+  totalPrice: integer("total_price").notNull(), // Total in cents (USD)
+  status: varchar("status").notNull().default("pending"), // pending, confirmed, cancelled
+  paymentIntentId: varchar("payment_intent_id"), // Stripe payment intent ID
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertFlightBookingSchema = createInsertSchema(flightBookings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertFlightBooking = z.infer<typeof insertFlightBookingSchema>;
+export type FlightBooking = typeof flightBookings.$inferSelect;
+
+// Passengers table - Store passenger information for bookings
+export const passengers = pgTable("passengers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: varchar("booking_id").notNull().references(() => flightBookings.id, { onDelete: 'cascade' }),
+  passengerType: varchar("passenger_type").notNull(), // "adult", "child", "infant"
+  title: varchar("title").notNull(), // Mr, Mrs, Ms, Dr
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  dateOfBirth: date("date_of_birth"),
+  email: varchar("email"),
+  phone: varchar("phone"),
+  passportNumber: varchar("passport_number"),
+  passportExpiry: date("passport_expiry"),
+  passportCountry: varchar("passport_country"),
+  seatNumber: varchar("seat_number"), // e.g., "12A"
+  seatPreference: varchar("seat_preference"), // "window", "aisle", "middle"
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPassengerSchema = createInsertSchema(passengers).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPassenger = z.infer<typeof insertPassengerSchema>;
+export type Passenger = typeof passengers.$inferSelect;
+
 // Amadeus API Flight Types
 export interface FlightSegment {
   departure: {
@@ -206,3 +255,19 @@ export interface FlightOffer {
   itineraries: FlightItinerary[];
   validatingAirlineCodes: string[];
 }
+
+// Flight Booking Relations
+export const flightBookingsRelations = relations(flightBookings, ({ one, many }) => ({
+  user: one(users, {
+    fields: [flightBookings.userId],
+    references: [users.id],
+  }),
+  passengers: many(passengers),
+}));
+
+export const passengersRelations = relations(passengers, ({ one }) => ({
+  booking: one(flightBookings, {
+    fields: [passengers.bookingId],
+    references: [flightBookings.id],
+  }),
+}));
