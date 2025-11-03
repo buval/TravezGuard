@@ -269,7 +269,7 @@ export default function Borders() {
                       <div className="flex items-start gap-2 text-muted-foreground">
                         <AlertCircle className="w-4 h-4 mt-0.5" />
                         <div className="text-sm">
-                          <p className="font-medium">Still working on it</p>
+                          <p className="font-medium">Preparing results…</p>
                           <p className="text-xs text-muted-foreground mt-1">
                             Thanks for your patience
                           </p>
@@ -323,7 +323,7 @@ export default function Borders() {
                         <p className="text-sm">Country mapping unavailable</p>
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">Still working on it</p>
+                      <p className="text-sm text-muted-foreground">Preparing results…</p>
                     )}
                   </CardContent>
                 </Card>
